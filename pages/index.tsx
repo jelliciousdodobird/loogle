@@ -20,13 +20,15 @@ import { MdMap, MdShoppingBasket, MdPlusOne, MdCheckBox } from "react-icons/md";
 import { RiAuctionFill } from "react-icons/ri";
 import { GiStoneSphere } from "react-icons/gi";
 import { expectedValueNot } from "../utils/utils";
+import { ReactElement, ReactNode } from "react";
+import HomePageLayout from "../components/HomePageLayout";
 
 const Container = styled.div`
   /* border: 1px solid red; */
 
-  height: 100%;
   width: 100%;
 
+  flex: 1;
   padding: 1rem;
 
   display: flex;
@@ -156,7 +158,13 @@ const links = [
   },
 ];
 
-const Home: NextPage = () => {
+type Props = {};
+
+type HomePageWithNoLayout = NextPage<Props> & {
+  getLayout: (page: ReactElement) => ReactNode;
+};
+
+const Home: HomePageWithNoLayout = () => {
   const { toggleTheme } = useThemeState();
   return (
     <Container id="index">
@@ -183,6 +191,10 @@ const Home: NextPage = () => {
       </AlignmentContainer>
     </Container>
   );
+};
+
+Home.getLayout = function getLayout(page: ReactElement) {
+  return <HomePageLayout>{page}</HomePageLayout>;
 };
 
 export default Home;

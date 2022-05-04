@@ -149,17 +149,11 @@ export const GlobalReset = () => {
         }
 
         html {
-          height: 100%;
-          /* border: 2px dashed teal; */
-
-          /* width: 100%; */
-          /* height: 100%; */
-          /* overflow: hidden; */
-          /* overflow-y: scroll; */
-          /* overflow-x: hidden; */
+          /* border: 2px dashed red; */
+          background-color: ${theme.colors.background.main};
 
           /*
-            !important is here because we need the scroll bar to always show 
+            !important is here because we need the scroll bar to always show
             otherwise there is a jarring jump when users click between pages that may
             or may not have content that overflows.
           
@@ -168,36 +162,25 @@ export const GlobalReset = () => {
             this rule here.
           */
 
-          overflow: hidden scroll !important;
+          /* overflow: hidden scroll !important; */
+          overflow: hidden scroll;
           scroll-behavior: smooth;
 
-          /* height: 100%; */
-
-          background-color: ${theme.colors.background.main};
-
-          /* background: ${`linear-gradient(45deg, ${theme.colors.primary.main}, ${theme.colors.primary.light})`}; */
+          min-height: 100%;
+          display: flex;
+          flex-direction: column;
 
           body {
-            height: 100%;
-            /* border: 2px dashed salmon; */
-
-            /* min-height: 100vh; */
-            /* overflow: auto; */
-
-            /* overflow: hidden; */
-            /* width: 100%; */
-            /* height: 100%; */
+            /* border: 2px dashed blue; */
+            flex: 1;
+            display: flex;
+            flex-direction: column;
 
             #__next {
-              height: 100%;
-              /* border: 2px dashed orange; */
-
-              /* overflow: hidden; */
-              /* overflow: auto; */
-              /* width: 100%; */
-              /* height: 100%; */
-
-              /* display: flex; */
+              /* border: 2px dashed yellowgreen; */
+              flex: 1;
+              display: flex;
+              flex-direction: column;
             }
           }
         }

@@ -8,65 +8,27 @@ import { ThemeStateProvider } from "../contexts/ThemeContext";
 import { UIStateProvider } from "../contexts/UIContext";
 import SparklingStars from "../components/SparklingStars";
 import { useRouter } from "next/router";
+import { NextPage } from "next/types";
+import { ReactElement, ReactNode } from "react";
+import DefaultLayout from "../components/DefaultLayout";
+import HomePageLayout from "../components/HomePageLayout";
 
-const AppContainer = styled.div`
-  /* border: 2px dashed red; */
+type NextPageWithLayout = NextPage & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
 
-  position: relative;
-  width: 100%;
-  height: 100%;
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
 
-  background-color: #222;
+const App = ({ Component, pageProps }: AppPropsWithLayout) => {
+  const getLayout =
+    Component.getLayout ?? ((page) => <DefaultLayout>{page}</DefaultLayout>);
 
-  /* min-height: 100vh; */
-
-  display: flex;
-  flex-direction: column;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.s}px) {
-    flex-direction: column;
-  }
-`;
-
-const NotificationContainer = styled.div`
-  z-index: 2;
-
-  position: sticky;
-  top: ${({ theme }) => theme.dimensions.mainNav.maxHeight}px;
-
-  width: 100%;
-  /* background-color: ${({ theme }) => theme.colors.primary.main}; */
-`;
-
-const PageContainer = styled.main`
-  /* border: 2px dashed blue; */
-
-  z-index: 1;
-  position: relative;
-
-  height: 100%;
-
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-
-  /* align-items: center; */
-`;
-
-const App = ({ Component, pageProps }: AppProps) => {
   return (
     <ThemeStateProvider>
       <UIStateProvider>
-        <AppContainer id="app">
-          {/* <NavigationBar /> */}
-          <NotificationContainer id="main-notification" />
-
-          <PageContainer id="page-container">
-            <SparklingStars />
-
-            <Component {...pageProps} />
-          </PageContainer>
-        </AppContainer>
+        {getLayout(<Component {...pageProps} />)}
       </UIStateProvider>
     </ThemeStateProvider>
   );
