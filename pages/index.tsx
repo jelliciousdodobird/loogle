@@ -19,6 +19,7 @@ import Searchbar from "../components/Searchbar";
 import { MdMap, MdShoppingBasket, MdPlusOne, MdCheckBox } from "react-icons/md";
 import { RiAuctionFill } from "react-icons/ri";
 import { GiStoneSphere } from "react-icons/gi";
+import { expectedValueNot } from "../utils/utils";
 
 const Container = styled.div`
   /* border: 1px solid red; */
@@ -159,7 +160,7 @@ const Home: NextPage = () => {
   const { toggleTheme } = useThemeState();
   return (
     <Container id="index">
-      <WelcomeMessage>
+      <WelcomeMessage onClick={() => expectedValueNot()}>
         <T>
           Loogle<C>,</C> l<C>ost ark's g</C>oogle.
         </T>

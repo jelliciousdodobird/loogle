@@ -40,11 +40,6 @@ const CircleIcon = styled(motion.div)<{ fg: string }>`
 
     fill: ${({ fg }) => fg};
     fill: #fff;
-
-    /* fill: inherit; */
-    /* fill: #fff; */
-
-    /* fill: #fff; */
   }
 `;
 
@@ -95,6 +90,7 @@ const PageShortcut = ({
     <Container
       bg="#fff"
       whileHover={{ scale: 1.07, backgroundColor: color }}
+      whileTap={{ scale: 1.12, backgroundColor: color }}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       onBlur={() => setHover(false)}
