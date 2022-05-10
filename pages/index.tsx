@@ -12,7 +12,7 @@ import Image from "next/image";
 import { useThemeState } from "../contexts/ThemeContext";
 
 // custom components:
-import PageShortcut from "../components/NavItem";
+import NavItem from "../components/NavItem";
 import Searchbar from "../components/Searchbar";
 
 // icons:
@@ -178,7 +178,7 @@ const Home: HomePageWithNoLayout = () => {
         <Nav>
           <PageLinksContainer>
             {links.map((link) => (
-              <PageShortcut
+              <NavItem
                 key={link.name}
                 name={link.name}
                 color={link.color}
