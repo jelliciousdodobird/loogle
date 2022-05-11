@@ -5,13 +5,23 @@ import { MdMap, MdShoppingBasket, MdPlusOne, MdCheckBox } from "react-icons/md";
 import { RiAuctionFill } from "react-icons/ri";
 import { GiStoneSphere } from "react-icons/gi";
 import NavItem from "./NavItem";
+import NavbarItem from "./NavbarItem";
+import Logo from "./Logo";
 
 const Container = styled.nav`
   /* border: 1px solid blue; */
+  /* border-top: 1px solid ${({ theme }) => theme.colors.background.lighter}; */
+  border-bottom: 2px solid ${({ theme }) => theme.colors.background.dark};
 
   height: 5rem;
 
-  color: white;
+  background-color: ${({ theme }) => theme.colors.surface.dark};
+  background-color: ${({ theme }) => theme.colors.background.dark};
+  /* background-color: ${({ theme }) => theme.colors.background.light}; */
+  /* background-color: #222; */
+
+  display: flex;
+  justify-content: center;
 `;
 
 const List = styled.ul`
@@ -21,7 +31,8 @@ const List = styled.ul`
   margin: 0 auto;
 
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
+  align-items: center;
   gap: 1rem;
 `;
 
@@ -29,8 +40,12 @@ const Item = styled.li`
   color: white;
 `;
 
+const StretchedItem = styled(Item)`
+  flex: 1;
+`;
+
 const links = [
-  { name: "Home", link: "/", order: 0, color: "#428ae8", icon: MdMap },
+  // { name: "Home", link: "/", order: 0, color: "#428ae8", icon: MdMap },
   { name: "Map", link: "/map", order: 0, color: "#19b28e", icon: MdMap },
   {
     name: "Market",
@@ -73,14 +88,20 @@ const Navbar = () => {
   return (
     <Container>
       <List>
+        <StretchedItem>
+          <Logo />
+        </StretchedItem>
+
         {links.map((link) => (
-          <NavItem
-            key={link.name}
-            name={link.name}
-            color={link.color}
-            icon={link.icon}
-            link={link.link}
-          />
+          <Item>
+            <NavbarItem
+              key={link.name}
+              name={link.name}
+              // color={link.color}
+              // icon={link.icon}
+              link={link.link}
+            />
+          </Item>
         ))}
       </List>
     </Container>

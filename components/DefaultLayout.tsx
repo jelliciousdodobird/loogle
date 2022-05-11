@@ -8,7 +8,7 @@ const AppContainer = styled.div`
   /* border: 2px dashed red; */
   position: relative;
 
-  background-color: #222;
+  /* background-color: #222; */
 
   flex: 1; /* stretches to fill the height */
 
@@ -20,7 +20,12 @@ const AppContainer = styled.div`
   }
 `;
 
-const Header = styled.header``;
+const Header = styled.header`
+  z-index: 10;
+
+  position: sticky;
+  top: 0;
+`;
 
 const NotificationContainer = styled.div`
   z-index: 2;
@@ -45,6 +50,16 @@ const PageContainer = styled.main`
   align-items: stretch;
 `;
 
+const T = styled.div`
+  width: 100%;
+  padding: 8px;
+
+  background-color: ${({ theme }) => theme.colors.background.darker};
+
+  display: flex;
+  justify-content: center;
+`;
+
 type Props = {
   children: ReactNode;
 };
@@ -53,6 +68,8 @@ const DefaultLayout = ({ children }: Props) => {
   return (
     <AppContainer id="app">
       <Header>
+        {/* <div>notiction here</div> */}
+        <T>Test notification</T>
         <NotificationContainer id="main-notification" />
         <Navbar />
       </Header>

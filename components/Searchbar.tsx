@@ -59,6 +59,7 @@ const SearchbarContainer = styled(motion.div)`
   z-index: 1;
   position: relative;
   background-color: ${({ theme }) => theme.colors.surface.main};
+  background-color: ${({ theme }) => theme.colors.background.lighter};
 
   padding: 0 0.75rem;
 
@@ -105,6 +106,7 @@ const Button = styled(motion.button)`
 
   &:hover {
     background-color: ${({ theme }) => theme.colors.surface.dark};
+    background-color: ${({ theme }) => theme.colors.background.light};
   }
 `;
 
@@ -158,6 +160,10 @@ const Key = styled(motion.span)`
   /* background-color: ${({ theme }) => theme.colors.surface.darker}; */
   background-color: transparent;
   color: ${({ theme }) => theme.colors.surface.darker};
+  color: ${({ theme }) => theme.colors.onBackground.darker};
+  color: #9d9d9d;
+  opacity: 0.5;
+  /* color: red; */
   /* color: #e6e6e7; */
   border: 1px solid currentColor;
 `;

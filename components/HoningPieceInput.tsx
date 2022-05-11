@@ -16,6 +16,9 @@ const Container = styled.div`
   height: 7rem;
 
   background-color: ${({ theme }) => theme.colors.surface.dark};
+  background-color: ${({ theme }) => theme.colors.background.light};
+  background-color: ${({ theme }) => theme.colors.surface.light};
+  /* background-color: ${({ theme }) => theme.colors.surface.main}; */
 
   border-radius: 5px;
 `;
@@ -42,6 +45,9 @@ const InputContainer = styled.div`
   border-radius: 50%;
 
   background-color: ${({ theme }) => theme.colors.background.main};
+  background-color: ${({ theme }) => theme.colors.background.lighter};
+  background-color: ${({ theme }) => theme.colors.surface.lighter};
+  /* background-color: ${({ theme }) => theme.colors.surface.lighter}; */
 
   display: flex;
   justify-content: center;
@@ -71,6 +77,7 @@ const StartInput = styled.input`
   }
   &:focus {
     border: 2px solid ${({ theme }) => theme.colors.primary.main};
+    border: 2px solid ${({ theme }) => theme.colors.onSurface.main};
   }
 `;
 

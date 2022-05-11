@@ -67,14 +67,28 @@ export const darkTheme: Theme = {
     primary: ccs({ main: "#49d0b0", darker: "#007258" }),
     secondary: ccs({ main: "#2dc3e9" }),
 
-    background: ccs({ main: "#2e3035", darker: "#222222" }),
-    surface: ccs({ main: "#36383e", darker: "#222222" }),
+    // background: ccs({ main: "#2e3035", darker: "#222222" }),
+    // surface: ccs({ main: "#36383e", darker: "#222222" }),
+    background: ccs({
+      lighter: "#383838",
+      light: "#272727",
+      // main: "#1a1a1a",
+      main: "#222222",
+      dark: "#1d1d1d",
+      darker: "#000000",
+    }),
+    surface: ccs({
+      lighter: "#505050",
+      light: "#3e3e3e",
+      main: "#383838",
+      darker: "#222222",
+    }),
 
     onPrimary: ccs({ main: "#ffffff" }),
     onSecondary: ccs({ main: "#ffffff" }),
 
-    onBackground: ccs({ main: "#ffffff" }),
-    onSurface: ccs({ main: "#ffffff" }),
+    onBackground: ccs({ main: "#ffffff", dark: "#e6e6e7", darker: "#e0e0e0" }),
+    onSurface: ccs({ main: "#ffffff", dark: "#e6e6e7", darker: "#e0e0e0" }),
 
     info: ccs({ main: "#51acfe" }),
     success: ccs({ main: "#37d7b2" }),
@@ -164,6 +178,7 @@ export const GlobalReset = () => {
 
           /* overflow: hidden scroll !important; */
           overflow: hidden scroll;
+          /* overflow: visible visible; */
           scroll-behavior: smooth;
 
           min-height: 100%;

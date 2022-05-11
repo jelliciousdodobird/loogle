@@ -1,10 +1,13 @@
 // styling:
 import styled from "@emotion/styled";
+
 import { useState } from "react";
 import HoningPieceInput from "../components/HoningPieceInput";
 import SelectInput from "../components/inputs/SelectInput";
 
-const Container = styled.div``;
+const Container = styled.div`
+  padding: 1rem 0;
+`;
 
 const Content = styled.div`
   width: 55%;
@@ -30,7 +33,7 @@ const TotalContainer = styled.div`
 
   padding: 1rem;
   border-radius: 5px;
-  border: 2px solid ${({ theme }) => theme.colors.primary.main};
+  border: 2px solid ${({ theme }) => theme.colors.onBackground.main};
 
   display: flex;
   flex-direction: row;

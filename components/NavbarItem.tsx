@@ -12,7 +12,8 @@ const A = styled(motion.a)`
 
   border-radius: 10px;
   padding: 0.5rem;
-  background-color: #fff;
+  background: transparent;
+  /* background-color: #fff; */
 
   height: 3rem;
 
@@ -38,6 +39,7 @@ const CircleIcon = styled(motion.div)<{ fg: string }>`
   border-radius: 50%;
 
   background-color: ${({ fg }) => fg};
+  background-color: transparent;
 
   display: flex;
   justify-content: center;
@@ -64,7 +66,7 @@ const Text = styled.span`
   /* border: 1px solid blue; */
   padding-right: 0.5rem;
 
-  color: ${({ theme }) => theme.colors.background.main};
+  /* color: ${({ theme }) => theme.colors.background.main}; */
   white-space: nowrap;
   font-weight: 600;
 
@@ -76,11 +78,11 @@ const Text = styled.span`
 type Props = {
   color?: string;
   name: string;
-  icon: IconType;
+  icon?: IconType;
   link: string;
 };
 
-const NavItem = ({ name, color = "#ffffff", icon, link }: Props) => {
+const NavbarItem = ({ name, color = "#ffffff", icon, link }: Props) => {
   const [hover, setHover] = useState(false);
 
   const iconAnimProps = {
@@ -117,20 +119,15 @@ const NavItem = ({ name, color = "#ffffff", icon, link }: Props) => {
   return (
     <Link href={`${link}`} passHref>
       <A
-        {...bgAnimProps}
+        // {...bgAnimProps}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         onBlur={() => setHover(false)}
       >
-        <CircleContainer>
-          <CircleIcon fg={color}>{React.createElement(icon)}</CircleIcon>
-          <ACircleIcon fg={color} {...iconAnimProps} />
-        </CircleContainer>
-
         <Text>{name}</Text>
       </A>
     </Link>
   );
 };
 
-export default NavItem;
+export default NavbarItem;
