@@ -15,6 +15,7 @@ const Options = styled(motion.ul)`
   position: absolute;
   width: 100%;
   margin-top: 0.5rem;
+  padding: 0.5rem;
 
   border-radius: 5px;
   background-color: ${({ theme }) => theme.colors.surface.main};
@@ -122,7 +123,7 @@ const SelectInput = ({ items, selected, handleChange, className }: Props) => {
     animate: showOptions ? "expand" : "initial",
     exit: "initial",
 
-    // transition: { duration: 0.5 },
+    transition: { duration: 0.25 },
   };
 
   const toggleShowOptions = () => setShowOptions((v) => !v);

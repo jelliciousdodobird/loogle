@@ -7,7 +7,8 @@ import {
   MdKeyboardArrowRight,
   MdDoubleArrow,
 } from "react-icons/md";
-import { useEffect, useState } from "react";
+import { ChangeEvent, FocusEventHandler, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 const Container = styled.div`
   position: relative;
@@ -34,7 +35,7 @@ const PositionContainer = styled.div`
   align-items: center;
 `;
 
-const InputContainer = styled.div`
+const InputContainer = styled(motion.div)`
   /* padding: 0.5rem; */
   width: 2rem;
   height: 2rem;
@@ -54,7 +55,7 @@ const InputContainer = styled.div`
   align-items: center;
 `;
 
-const StartInput = styled.input`
+const Input = styled.input`
   border-radius: 50%;
 
   font-weight: 600;
@@ -76,8 +77,8 @@ const StartInput = styled.input`
     appearance: textfield; /* Firefox */
   }
   &:focus {
-    border: 2px solid ${({ theme }) => theme.colors.primary.main};
-    border: 2px solid ${({ theme }) => theme.colors.onSurface.main};
+    /* border: 2px solid ${({ theme }) => theme.colors.primary.main};
+    border: 2px solid ${({ theme }) => theme.colors.onSurface.main}; */
   }
 `;
 
@@ -99,18 +100,71 @@ const ArrowIcon = styled.span`
     height: 100%;
   }
 `;
+
+type BubbleInputProps = {
+  min?: number;
+  max?: number;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: FocusEventHandler<HTMLInputElement> | undefined;
+};
+
+const BubbleInput = ({
+  min = 0,
+  max = 15,
+  value,
+  onChange,
+  onBlur,
+}: BubbleInputProps) => {
+  const [isFocused, setIsFocused] = useState(false);
+
+  const bubbleAnimProps = {
+    variants: {
+      initial: {
+        border: "0px solid white",
+      },
+      expand: {
+        border: "3px solid white",
+        // scale: 1.1,
+      },
+    },
+    initial: "initial",
+    animate: isFocused ? "expand" : "initial",
+
+    transition: { duration: 0.1 },
+  };
+
+  return (
+    <InputContainer {...bubbleAnimProps}>
+      <Input
+        type="number"
+        min={min}
+        max={max}
+        value={value}
+        onChange={onChange}
+        onFocus={() => setIsFocused(true)}
+        onBlur={(e) => {
+          onBlur && onBlur(e);
+          setIsFocused(false);
+        }}
+
+        // onBlur={() => {
+        //   if (isNaN(values.honing_start))
+        //     handleChange({ ...data, honing_start: 0 });
+        // }}
+      />
+    </InputContainer>
+  );
+};
+
 type HoningPieceProps = {
   data: HoningFields;
   handleChange: (value: HoningFields) => void;
 };
 
 const HoningPieceInput = ({ data, handleChange }: HoningPieceProps) => {
-  // const [start, setStart] = useState(data.honing_start.toString());
-  // const [end, setEnd] = useState(data.honing_end.toString());
-  const [value, setValue] = useState({
-    start: data.honing_start.toString(),
-    end: data.honing_end.toString(),
-  });
+  const numToStr = (value: number) => (isNaN(value) ? "" : value.toString());
+  // const strToNum = (value: string) => (isNaN(value) ? "" : value.toString());
 
   const validateInput = (value: string) => {
     const num = parseInt(value);
@@ -121,78 +175,58 @@ const HoningPieceInput = ({ data, handleChange }: HoningPieceProps) => {
     else return num;
   };
 
-  const numToStr = (value: number) => (isNaN(value) ? "" : value.toString());
+  const updateField = (e: ChangeEvent<HTMLInputElement>, key: string) => {
+    const rawInput = e.target.value;
+    const newValue = validateInput(rawInput);
 
-  useEffect(() => {
     handleChange({
       ...data,
-      honing_start: validateInput(value.start),
-      honing_end: validateInput(value.end),
+      [key]: rawInput === "" ? "" : numToStr(newValue),
+      // honing_end: numToStr(newEnd),
     });
-  }, [value]);
+  };
+
+  const startHandler = (e: ChangeEvent<HTMLInputElement>) =>
+    updateField(e, "honing_start");
+
+  const endHandler = (e: ChangeEvent<HTMLInputElement>) =>
+    updateField(e, "honing_end");
+
+  const startBlurHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    const { honing_start, honing_end } = data;
+
+    handleChange({
+      ...data,
+      honing_start: honing_start === "" ? honing_end : honing_start,
+    });
+  };
+
+  const endBlurHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    const { honing_end, honing_start } = data;
+
+    handleChange({
+      ...data,
+      honing_end: honing_end === "" ? honing_start : honing_end,
+    });
+  };
 
   return (
     <Container>
       <PositionContainer>
-        <InputContainer>
-          <StartInput
-            type="number"
-            min={"0"}
-            max={"15"}
-            value={value.start}
-            onChange={(e) => {
-              const end = parseInt(value.end);
+        <BubbleInput
+          value={data.honing_start}
+          onChange={startHandler}
+          onBlur={startBlurHandler}
+        />
 
-              const newStart = validateInput(e.target.value);
-              const newEnd = end <= newStart ? newStart : end;
-
-              // setValues({
-              //   ...data,
-              //   honing_start: newStart,
-              //   honing_end: newEnd,
-              // });
-
-              setValue({
-                start: numToStr(newStart),
-                end: numToStr(newEnd),
-              });
-            }}
-            // onBlur={() => {
-            //   if (isNaN(values.honing_start))
-            //     handleChange({ ...data, honing_start: 0 });
-            // }}
-          />
-        </InputContainer>
-        <ArrowIcon
-          onClick={() => {
-            parseInt("d");
-          }}
-        >
+        <ArrowIcon>
           <MdDoubleArrow />
         </ArrowIcon>
-        <InputContainer>
-          <StartInput
-            type="number"
-            min={"0"}
-            max={"15"}
-            value={value.end}
-            onChange={(e) => {
-              // const end = validateInput(e.target.value);
-              // const newEnd = isNaN(end) ? 0 : end;
-              // const newStart =
-              //   newEnd <= data.honing_start ? newEnd : data.honing_end;
-              // handleChange({
-              //   ...data,
-              //   honing_start: newStart,
-              //   honing_end: newEnd,
-              // });
-            }}
-            // onBlur={() => {
-            //   if (isNaN(data.honing_end))
-            //     handleChange({ ...data, honing_end: 0 });
-            // }}
-          />
-        </InputContainer>
+        <BubbleInput
+          value={data.honing_end}
+          onChange={endHandler}
+          onBlur={endBlurHandler}
+        />
       </PositionContainer>
     </Container>
   );
