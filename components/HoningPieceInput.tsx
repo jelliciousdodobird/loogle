@@ -195,18 +195,30 @@ const HoningPieceInput = ({ data, handleChange }: HoningPieceProps) => {
   const startBlurHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { honing_start, honing_end } = data;
 
+    const start = validateInput(honing_start);
+    const end = validateInput(honing_end);
+
+    const newEnd = start >= end ? start : end;
+
     handleChange({
       ...data,
       honing_start: honing_start === "" ? honing_end : honing_start,
+      honing_end: numToStr(newEnd),
     });
   };
 
   const endBlurHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { honing_end, honing_start } = data;
 
+    const start = validateInput(honing_start);
+    const end = validateInput(honing_end);
+
+    const newStart = start >= end ? end : start;
+
     handleChange({
       ...data,
       honing_end: honing_end === "" ? honing_start : honing_end,
+      honing_start: numToStr(newStart),
     });
   };
 
