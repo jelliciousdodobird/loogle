@@ -93,7 +93,7 @@ const Navbar = () => {
         </StretchedItem>
 
         {links.map((link) => (
-          <Item>
+          <Item key={link.name}>
             <NavbarItem
               key={link.name}
               name={link.name}
