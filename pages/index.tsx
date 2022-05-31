@@ -19,7 +19,6 @@ import Searchbar from "../components/Searchbar";
 import { MdMap, MdShoppingBasket, MdPlusOne, MdCheckBox } from "react-icons/md";
 import { RiAuctionFill } from "react-icons/ri";
 import { GiStoneSphere } from "react-icons/gi";
-import { expectedValueNot } from "../utils/utils";
 import { ReactElement, ReactNode } from "react";
 import HomePageLayout from "../components/HomePageLayout";
 
@@ -168,7 +167,7 @@ const Home: HomePageWithNoLayout = () => {
   const { toggleTheme } = useThemeState();
   return (
     <Container id="index">
-      <WelcomeMessage onClick={() => expectedValueNot()}>
+      <WelcomeMessage>
         <T>
           Loogle<C>,</C> l<C>ost ark's g</C>oogle.
         </T>
