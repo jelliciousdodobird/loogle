@@ -157,8 +157,8 @@ export const GlobalReset = () => {
           -webkit-tap-highlight-color: transparent;
 
           &::selection {
-            background: ${theme.colors.primary.main};
-            color: black;
+            background: ${theme.colors.background.darker};
+            color: ${theme.colors.onBackground.main};
           }
         }
 

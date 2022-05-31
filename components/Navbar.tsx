@@ -9,16 +9,9 @@ import NavbarItem from "./NavbarItem";
 import Logo from "./Logo";
 
 const Container = styled.nav`
-  /* border: 1px solid blue; */
-  /* border-top: 1px solid ${({ theme }) => theme.colors.background.lighter}; */
-  border-bottom: 2px solid ${({ theme }) => theme.colors.background.dark};
-
   height: 5rem;
 
-  background-color: ${({ theme }) => theme.colors.surface.dark};
   background-color: ${({ theme }) => theme.colors.background.dark};
-  /* background-color: ${({ theme }) => theme.colors.background.light}; */
-  /* background-color: #222; */
 
   display: flex;
   justify-content: center;
