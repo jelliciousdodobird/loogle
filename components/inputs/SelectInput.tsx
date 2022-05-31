@@ -1,8 +1,9 @@
 import styled from "@emotion/styled";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 import { MdArrowDropDown } from "react-icons/md";
+import { SetTier, SetType } from "../../utils/honing-calculations";
 
 const Container = styled.div`
   z-index: 2;
@@ -15,7 +16,9 @@ const Options = styled(motion.ul)`
   position: absolute;
   width: 100%;
   margin-top: 0.5rem;
-  padding: 0.5rem;
+  padding: 3px;
+
+  border: 1px solid ${({ theme }) => theme.colors.surface.light};
 
   border-radius: 5px;
   background-color: ${({ theme }) => theme.colors.surface.main};
@@ -29,6 +32,7 @@ const Option = styled.li`
   padding: 0.5rem;
   user-select: none;
 
+  text-transform: uppercase;
   &:hover {
     background-color: ${({ theme }) => theme.colors.background.darker};
     font-weight: 600;
@@ -46,6 +50,7 @@ const SelectedOption = styled.div`
   padding: 0.5rem;
   /* padding-right: 0; */
 
+  border: 1px solid ${({ theme }) => theme.colors.surface.light};
   background-color: ${({ theme }) => theme.colors.surface.dark};
 
   display: flex;
@@ -61,15 +66,13 @@ const SelectedText = styled.p`
   flex: 1;
   font-weight: 600;
   white-space: nowrap;
+
+  text-transform: uppercase;
 `;
 
 const ArrowIcon = styled(motion.span)`
-  /* border: 1px solid red; */
-  /* width: 2rem;
-  height: 2rem; */
-
   background-color: ${({ theme }) => theme.colors.surface.lighter};
-  border-radius: 3px;
+
   border-radius: 50%;
 
   display: flex;
@@ -79,19 +82,22 @@ const ArrowIcon = styled(motion.span)`
   svg {
     width: 1.5rem;
     height: 1.5rem;
-    /* width: 100%;
-    height: 100%; */
   }
 `;
 
+export type OptionType = {
+  id: string;
+  label: string | number;
+};
+
 type Props = {
-  items: string[];
-  selected: string;
-  handleChange: (value: string) => void;
+  options: OptionType[];
+  value: OptionType;
+  onChange: Dispatch<SetStateAction<OptionType>>;
   className?: string;
 };
 
-const SelectInput = ({ items, selected, handleChange, className }: Props) => {
+const SelectInput = ({ options, value, onChange, className }: Props) => {
   const [showOptions, setShowOptions] = useState(false);
 
   const iconAnimProps = {
@@ -131,7 +137,7 @@ const SelectInput = ({ items, selected, handleChange, className }: Props) => {
   return (
     <Container className={className}>
       <SelectedOption onClick={toggleShowOptions}>
-        <SelectedText>{selected}</SelectedText>
+        <SelectedText>{value.label}</SelectedText>
         <ArrowIcon {...iconAnimProps}>
           <MdArrowDropDown />
         </ArrowIcon>
@@ -141,19 +147,19 @@ const SelectInput = ({ items, selected, handleChange, className }: Props) => {
           <Options
             {...optionsAnimProps}
             role="listbox"
-            aria-activedescendant={selected}
+            aria-activedescendant={value.id}
           >
-            {items.map((v) => (
+            {options.map((v) => (
               <Option
-                key={v}
+                key={v.id}
                 role="option"
-                aria-selected={selected === v}
+                aria-selected={value.id === v.id}
                 onClick={() => {
-                  handleChange(v);
+                  onChange(v);
                   setShowOptions(false);
                 }}
               >
-                {v}
+                {v.label}
               </Option>
             ))}
           </Options>

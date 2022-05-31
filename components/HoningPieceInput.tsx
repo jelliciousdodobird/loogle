@@ -15,6 +15,8 @@ const Container = styled.div`
 
   width: 7rem;
   height: 7rem;
+  min-width: 7rem;
+  min-height: 7rem;
 
   background-color: ${({ theme }) => theme.colors.surface.dark};
   background-color: ${({ theme }) => theme.colors.background.light};

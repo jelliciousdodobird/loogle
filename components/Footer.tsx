@@ -8,7 +8,9 @@ const Container = styled.footer`
   padding-bottom: 1rem;
   background-color: ${({ theme }) => theme.colors.background.main};
   background-color: ${({ theme }) => theme.colors.background.dark};
-  background-color: ${({ theme }) => theme.colors.surface.light};
+  background-color: ${({ theme }) => theme.colors.surface.main};
+  background-color: ${({ theme }) => theme.colors.background.dark};
+  border-top: 1px solid ${({ theme }) => theme.colors.background.light};
 
   /* background-color: ${({ theme }) => theme.colors.surface.main}; */
 `;
