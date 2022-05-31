@@ -1,10 +1,25 @@
 // styling:
 import { css, jsx, Theme, useTheme } from "@emotion/react";
 import styled from "@emotion/styled";
+import { chown } from "fs";
 
 // state:
 import { useState } from "react";
 import { RiXboxFill } from "react-icons/ri";
+
+// components:
+import Button from "../components/Button";
+import SelectInput from "../components/inputs/SelectInput";
+
+// SVGS:
+import { MdOutlineCheck } from "react-icons/md";
+import { MdOutlineClose } from "react-icons/md";
+
+import { MdSync } from "react-icons/md";
+import { MdRotateLeft } from "react-icons/md";
+import { MdRotateRight } from "react-icons/md";
+
+// GENERAL CONTAINERS --------------------------------------------------------------------
 
 const Container = styled.div`
   padding: 1rem 0;
@@ -19,10 +34,21 @@ const Content = styled.div`
   gap: 1rem;
 `;
 
-// general
-
 const Cutter = styled.section`
   background-color: grey;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  padding: 1rem;
+`;
+
+// ENGRAVINGS ----------------------------------------------------------------
+
+const Engravings = styled.section`
+  background-color: white;
+  width: 100%;
 
   display: flex;
   flex-direction: column;
@@ -44,14 +70,20 @@ const Engraving = styled.div`
   padding: 1rem;
 `;
 
-// mining, maximise one, maximise two, maximise both
-// later: probability specifics....
-const Button = styled.div``;
+// NODES -----------------------------------------------------------------------
+
+const Nodes = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  gap: 1rem;
+`;
 
 type Trial = { trial: boolean | null };
 const Node = styled.div<Trial>`
-  width: 10px;
-  height: 10px;
+  min-width: 1rem;
+  height: 1rem;
 
   border: 1px solid white;
   background-color: ${(props) =>
@@ -60,19 +92,68 @@ const Node = styled.div<Trial>`
   transform: rotate(45deg);
 `;
 
-// specific
+// GENERAL BUTTONS ---------------------------------------------------------------
+
+const GeneralOptions = styled.section`
+  background-color: white;
+
+  display: flex;
+  flex-direction: row;
+
+  justify-content: center;
+  align-items: center;
+
+  gap: 1rem;
+  padding: 0.5rem;
+`;
+
+// mining, maximise one, maximise two, maximise both
+// later: probability specifics....
+const CustomButton = styled(Button)`
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  /* For Text Content */
+  font-weight: 300;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.15rem;
+`;
+
+const CustomSvg = styled.span`
+  width: 1.25rem;
+  height: 1.25rem;
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+`;
+
+const CustomSelectInput = styled(SelectInput)`
+  margin-left: auto;
+
+  /* font-weight: 300; */
+  /* font-size: 12px; */
+  /* letter-spacing: 0.15rem; */
+`;
 
 const NodeInput = styled.div``;
 
-type CustomButtonProps = {
-  svg: SVGElement | null;
-  text: string;
-  function: Function | null;
-};
+// ADVANCED BUTTONS ---------------------------------------------------------------
 
-const CustomButton = (props: CustomButtonProps) => {
-  return <div>Yo!</div>;
-};
+const AdvancedOptions = styled.section`
+  background-color: white;
+`;
+
+// MAIN COMPONENT -----------------------------------------------------------------
 
 type trials = {
   position: number;
@@ -140,45 +221,84 @@ const StoneCutter = () => {
           StoneCutter
         </div>
         <Cutter>
-          <Button>Maximise First</Button>
-          <Button>Maximise Second</Button>
-          <Button>Maximise Both</Button>
-          <Button>Undo</Button>
-          <Button
+          <CustomButton
             onClick={() => {
-              console.log(engravings);
+              console.log("hewo");
             }}
           >
-            Reset
-          </Button>
-          <Button
-            onClick={() => {
-              selectNodes(10);
-            }}
-          >
-            Change Node Amount
-          </Button>
-          {engravings.map((engraving, index) => (
-            <Engraving key={index}>
-              {engraving.trials.map((trial, index) => (
-                <Node key={index} trial={trial} />
-              ))}
-              <Button
-                onClick={() => {
-                  succeed(index, true);
-                }}
-              >
-                Success
-              </Button>
-              <Button
-                onClick={() => {
-                  succeed(index, false);
-                }}
-              >
-                Fail
-              </Button>
-            </Engraving>
-          ))}
+            Hewo
+          </CustomButton>
+
+          <GeneralOptions>
+            <CustomButton title="Undo">
+              <CustomSvg>
+                <MdRotateLeft />
+              </CustomSvg>
+            </CustomButton>
+            <CustomButton title="Redo">
+              <CustomSvg>
+                <MdRotateRight />
+              </CustomSvg>
+            </CustomButton>
+            <CustomButton
+              onClick={() => {
+                console.log(engravings);
+              }}
+              title="Reset"
+            >
+              <CustomSvg>
+                <MdSync />
+              </CustomSvg>
+            </CustomButton>
+            <CustomSelectInput
+              items={["6", "8", "9", "10"]}
+              selected={nodes.toString()}
+              handleChange={(value: string) => {
+                selectNodes(parseInt(value));
+              }}
+            />
+          </GeneralOptions>
+
+          <AdvancedOptions>
+            <CustomButton>Maximise First</CustomButton>
+            <CustomButton>Maximise Second</CustomButton>
+            <CustomButton>Maximise Both</CustomButton>
+          </AdvancedOptions>
+          <Engravings>
+            {engravings.map((engraving, index) => (
+              // EACH ENGRAVING SECTION MAPPED
+              <Engraving key={index}>
+                {/* INDIVIDUAL NODES REPRESENTING TRIALS */}
+                <Nodes>
+                  {engraving.trials.map((trial, index) => (
+                    <Node key={index} trial={trial} />
+                  ))}
+                </Nodes>
+
+                {/* SUCCESS / FAIL BUTTONS */}
+                <CustomButton
+                  onClick={() => {
+                    succeed(index, true);
+                  }}
+                  title="Success"
+                >
+                  <CustomSvg>
+                    <MdOutlineCheck />
+                  </CustomSvg>
+                </CustomButton>
+                <CustomButton
+                  onClick={() => {
+                    succeed(index, false);
+                  }}
+                  title="Fail"
+                >
+                  <CustomSvg>
+                    <MdOutlineClose />
+                  </CustomSvg>
+                </CustomButton>
+              </Engraving>
+            ))}
+          </Engravings>
         </Cutter>
       </Content>
     </Container>
