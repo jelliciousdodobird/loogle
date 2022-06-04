@@ -76,26 +76,24 @@ const expectedCost = (numOfMaterials: number, numOfTrialsForSuccess: number) =>
 export type SetTier = "t1 302" | "t2 802" | "t3 1302" | "t3 1340";
 export type SetType = "weapon" | "armor";
 
-export type MaterialCosts = {
-  initialShards: number;
-  shards: number;
-  destructionStones: number;
-  guardianStones: number;
-  leapstones: number;
+export type UpgradeCost = {
+  shard: number;
+  destruction: number;
+  guardian: number;
+  leapstone: number;
   fusion: number;
-
   gold: number;
   silver: number;
 };
+
+export type MaterialCosts = UpgradeCost & { initialShards: number };
 
 export type EquipmentUpgradeData = {
   set_tier: SetTier;
   set_type: SetType;
 
-  start_ilvl: number;
-  start_lvl: number;
-  end_ilvl: number;
-  end_lvl: number;
+  ilvl: number;
+  lvl: number;
 
   initial_success_rate: number;
   initial_shards: number;
@@ -117,12 +115,12 @@ export type EquipmentUpgradeData = {
 export const getUpgradeLevelDataByLvl = (
   tier: SetTier,
   type: SetType,
-  lvl: number,
+  level: number,
   dataset: EquipmentUpgradeData[]
 ) => {
   return dataset.find(
-    ({ set_tier, set_type, end_lvl }) =>
-      set_tier === tier && set_type === type && end_lvl === lvl
+    ({ set_tier, set_type, lvl }) =>
+      set_tier === tier && set_type === type && lvl === level
   );
 };
 
@@ -132,57 +130,21 @@ const getUpgradeLevelDataByILvl = (
   end: number
 ) => {};
 
-export type UpgradeCost = {
-  total_shards: number;
-  total_destruction_stones: number;
-  total_guardian_stones: number;
-  total_leapstones: number;
-  total_fusion: number;
-  total_gold: number;
-  total_silver: number;
-};
-
 export const getUpgradeCosts = (
   initialProbability: number,
   materialCosts: MaterialCosts
 ): UpgradeCost => {
-  const base_probability = 0.1;
-  const leapstone_cost = 8;
-  const fusion_cost = 4;
-  const gold_cost = 70;
-  const stone_cost = 228;
-
   const expected_value = expectedValue(initialProbability);
 
-  const {
-    initialShards,
-    shards,
-    destructionStones,
-    guardianStones,
-    leapstones,
-    fusion,
-    gold,
-    silver,
-  } = materialCosts;
-
-  const total_shards = initialShards + expectedCost(shards, expected_value);
-  const total_destruction_stones = expectedCost(
-    destructionStones,
-    expected_value
-  );
-  const total_guardian_stones = expectedCost(guardianStones, expected_value);
-  const total_leapstones = expectedCost(leapstones, expected_value);
-  const total_fusion = expectedCost(fusion, expected_value);
-  const total_gold = expectedCost(gold, expected_value);
-  const total_silver = expectedCost(silver, expected_value);
-
   return {
-    total_shards,
-    total_destruction_stones,
-    total_guardian_stones,
-    total_leapstones,
-    total_fusion,
-    total_gold,
-    total_silver,
+    shard:
+      materialCosts.initialShards +
+      expectedCost(materialCosts.shard, expected_value),
+    destruction: expectedCost(materialCosts.destruction, expected_value),
+    guardian: expectedCost(materialCosts.guardian, expected_value),
+    leapstone: expectedCost(materialCosts.leapstone, expected_value),
+    fusion: expectedCost(materialCosts.fusion, expected_value),
+    gold: expectedCost(materialCosts.gold, expected_value),
+    silver: expectedCost(materialCosts.silver, expected_value),
   };
 };

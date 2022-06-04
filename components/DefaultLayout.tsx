@@ -71,7 +71,7 @@ const DefaultLayout = ({ children }: Props) => {
         {/* <div>notiction here</div> */}
         <T>Test notification</T>
         <NotificationContainer id="main-notification" />
-        <Navbar />
+        {/* <Navbar /> */}
       </Header>
 
       <PageContainer id="page-container">
