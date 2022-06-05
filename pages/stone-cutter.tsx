@@ -4,12 +4,12 @@ import styled from "@emotion/styled";
 import { chown } from "fs";
 
 // state:
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RiXboxFill } from "react-icons/ri";
 
 // components:
 import Button from "../components/Button";
-import SelectInput from "../components/inputs/SelectInput";
+import SelectInput, { OptionType } from "../components/inputs/SelectInput";
 
 // SVGS:
 import { MdOutlineCheck } from "react-icons/md";
@@ -154,27 +154,65 @@ const AdvancedOptions = styled.section`
 `;
 
 // MAIN COMPONENT -----------------------------------------------------------------
+const nodeTypes = [
+  { id: "10", label: "Relic" },
+  { id: "9", label: "Legendary" },
+  { id: "8", label: "Epic" },
+  { id: "6", label: "Rare" },
+];
 
-type trials = {
-  position: number;
-  trials: (boolean | null)[];
+// const ENGRAVING_NUM = 3;
+const INITIAL_PROBABILITY = 0.75;
+
+type trial = (boolean | null)[];
+type stone = {
+  ENGRAVING_ONE: { position: number; trials: trial };
+  ENGRAVING_TWO: { position: number; trials: trial };
+  MALUS: { position: number; trials: trial };
 };
+type x = keyof stone;
+type t = { [k in x]: trial };
 
 const StoneCutter = () => {
-  const [nodes, setNodes] = useState<number>(6);
-  const [probability, setProbability] = useState<number>(0.75);
-  // Array(3) for Engraving 1, Engraving 2, and Malus
-  const [engravings, setEngravings] = useState<trials[]>(
-    Array(3).fill({ position: 0, trials: Array(nodes).fill(null) })
-  );
+  const [nodes, setNodes] = useState<OptionType>(nodeTypes[0]);
+  const [probability, setProbability] = useState<number>(INITIAL_PROBABILITY);
 
-  const selectNodes = (nodes: number) => {
-    let newTrials = Array(nodes).fill(null);
-    setNodes(nodes);
-    setEngravings(Array(3).fill({ position: 0, trials: newTrials }));
-    console.log(nodes);
-    console.log(engravings);
-  };
+  const [engravings, setEngravings] = useState<stone>({
+    ENGRAVING_ONE: {
+      position: 0,
+      trials: Array(parseInt(nodes.id)).fill(null),
+    },
+    ENGRAVING_TWO: {
+      position: 0,
+      trials: Array(parseInt(nodes.id)).fill(null),
+    },
+    MALUS: {
+      position: 0,
+      trials: Array(parseInt(nodes.id)).fill(null),
+    },
+  });
+
+  // Update the amount of nodes in stone and reset values
+  useEffect(() => {
+    let newEngravings = { ...engravings };
+    let k: keyof stone;
+    for (k in newEngravings) {
+      newEngravings[k].trials = Array(parseInt(nodes.id)).fill(null);
+      newEngravings[k].position = engravings[k].position;
+      setEngravings(newEngravings);
+    }
+  }, [nodes]);
+
+  // const selectNodes = (newNodes: OptionType) => {
+  //   let newEngravings = { ...engravings };
+  //   let k: keyof stone;
+  //   for (k in newEngravings) {
+  //     newEngravings[k].trials = Array(parseInt(newNodes.id)).fill(null);
+  //     newEngravings[k].position = engravings[k].position;
+  //   }
+  //   setNodes(newNodes);
+  //   setEngravings(newEngravings);
+  // };
 
   const maximise = (engraving: number) => {
     if (0 <= engraving && engraving <= 2) {
@@ -187,27 +225,30 @@ const StoneCutter = () => {
     // probability calculations here
   };
 
-  const succeed = (engraving: number, succeed: boolean) => {
-    let updatedSuccess = { ...engravings[engraving] };
-    updatedSuccess.trials = [...engravings[engraving].trials];
-    if (updatedSuccess.position < nodes) {
-      succeed
-        ? (updatedSuccess.trials[updatedSuccess.position] = true)
-        : (updatedSuccess.trials[updatedSuccess.position] = false);
-      updatedSuccess.position++;
-      let updatedEngravings: trials[] = [];
-      engravings.map((x, index) => {
-        updatedEngravings[index] = {
-          position: x.position,
-          trials: [...x.trials],
-        };
-      });
-      console.log(updatedEngravings);
-      updatedEngravings[engraving] = updatedSuccess;
-      console.log(updatedSuccess);
-      setEngravings(updatedEngravings);
+  // Update Stone to add Successful or Failed Trials on Cut
+  const updateStone = (engraving: keyof stone, success: boolean) => {
+    // Deep Clone State
+    let deepEngravings = { ...engravings };
+    let k: keyof stone;
+    for (k in engravings) {
+      let deepTrials = [...engravings[k].trials];
+      deepEngravings[k].trials = deepTrials;
+      deepEngravings[k].position = engravings[k].position;
     }
+    // Update state through deep clone
+    let updatedEngraving = deepEngravings[engraving];
+    if (updatedEngraving.position < parseInt(nodes.id)) {
+      success
+        ? (updatedEngraving.trials[updatedEngraving.position] = true)
+        : (updatedEngraving.trials[updatedEngraving.position] = false);
+      updatedEngraving.position++;
+    }
+    setEngravings(deepEngravings);
   };
+
+  const undo = () => {};
+  const redo = () => {};
+  const reset = () => {};
 
   return (
     <Container>
@@ -251,11 +292,9 @@ const StoneCutter = () => {
               </CustomSvg>
             </CustomButton>
             <CustomSelectInput
-              items={["6", "8", "9", "10"]}
-              selected={nodes.toString()}
-              handleChange={(value: string) => {
-                selectNodes(parseInt(value));
-              }}
+              options={nodeTypes}
+              value={{ id: nodes.id, label: nodes.label }}
+              onChange={setNodes}
             />
           </GeneralOptions>
 
@@ -265,12 +304,12 @@ const StoneCutter = () => {
             <CustomButton>Maximise Both</CustomButton>
           </AdvancedOptions>
           <Engravings>
-            {engravings.map((engraving, index) => (
+            {(Object.keys(engravings) as (keyof stone)[]).map((e, index) => (
               // EACH ENGRAVING SECTION MAPPED
               <Engraving key={index}>
                 {/* INDIVIDUAL NODES REPRESENTING TRIALS */}
                 <Nodes>
-                  {engraving.trials.map((trial, index) => (
+                  {engravings[e].trials.map((trial, index) => (
                     <Node key={index} trial={trial} />
                   ))}
                 </Nodes>
@@ -278,7 +317,7 @@ const StoneCutter = () => {
                 {/* SUCCESS / FAIL BUTTONS */}
                 <CustomButton
                   onClick={() => {
-                    succeed(index, true);
+                    updateStone(e, true);
                   }}
                   title="Success"
                 >
@@ -288,7 +327,7 @@ const StoneCutter = () => {
                 </CustomButton>
                 <CustomButton
                   onClick={() => {
-                    succeed(index, false);
+                    updateStone(e, false);
                   }}
                   title="Fail"
                 >
