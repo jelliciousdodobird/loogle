@@ -1,5 +1,6 @@
 // styling:
 import styled from "@emotion/styled";
+import { redirect } from "next/dist/server/api-utils";
 
 import { useEffect, useState } from "react";
 import Button from "../components/Button";
@@ -10,13 +11,14 @@ import SelectInput, { OptionType } from "../components/inputs/SelectInput";
 import { MaterialTypes } from "../components/MaterialImageIcon";
 import Mats from "../components/Mats";
 import {
+  HoningStateProvider,
+  useHoningState,
+  UpgradeCostData,
   EquipmentUpgradeData,
-  getUpgradeCosts,
-  getUpgradeLevelDataByLvl,
-  SetTier,
   UpgradeCost,
-} from "../utils/honing-calculations";
-import supabase from "../utils/supabase";
+  SetTier,
+  SetType,
+} from "../contexts/HoningContext";
 
 const Container = styled.div`
   padding: 1rem 0;
@@ -32,8 +34,7 @@ const Content = styled.div`
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.s}px) {
-    width: 90%;
-
+    width: 95%;
     /* background-color: blue; */
   }
 
@@ -148,30 +149,44 @@ const equipmentSet: HoningFields[] = [
   },
 ];
 
-const tierBreakpoints: { [key: string]: any[] } = {
+const TIER_OPTIONS: OptionType[] = [
+  { id: "t1 302", label: "t1 302" },
+  { id: "t2 802", label: "t2 802" },
+  { id: "t3 1302", label: "t3 1302" },
+  { id: "t3 1340", label: "t3 1340" },
+  { id: "t3 relic", label: "t3 relic" },
+];
+
+type TierBreakpoints = Record<SetTier, { start: number; end: number }[]>;
+
+const tierBreakpoints: TierBreakpoints = {
   "t1 302": [
-    { start: 0, end: 8, start_ilvl: 302, end_ilvl: 460 },
-    { start: 8, end: 15, start_ilvl: 460, end_ilvl: 600 },
+    { start: 0, end: 8 },
+    { start: 8, end: 15 },
   ],
   "t2 802": [
-    { start: 0, end: 8, start_ilvl: 802, end_ilvl: 960 },
-    { start: 8, end: 15, start_ilvl: 960, end_ilvl: 1100 },
+    { start: 0, end: 8 },
+    { start: 8, end: 15 },
   ],
   "t3 1302": [
-    { start: 0, end: 10, start_ilvl: 1302, end_ilvl: 1340 },
-    { start: 10, end: 15, start_ilvl: 1340, end_ilvl: 1370 },
+    { start: 0, end: 9 },
+    { start: 9, end: 15 },
   ],
   "t3 1340": [
-    { start: 6, end: 9, start_ilvl: 1370, end_ilvl: 1385 },
-    { start: 9, end: 12, start_ilvl: 1385, end_ilvl: 1400 },
-    { start: 12, end: 15, start_ilvl: 1400, end_ilvl: 1415 },
-    { start: 15, end: 17, start_ilvl: 1415, end_ilvl: 1445 },
+    { start: 6, end: 9 },
+    { start: 9, end: 12 },
+    { start: 12, end: 15 },
+    { start: 15, end: 17 },
+  ],
+  "t3 relic": [
+    { start: 17, end: 20 },
+    { start: 20, end: 25 },
   ],
 };
 
 export type HoningFields = {
   id: string;
-  type: "armor" | "weapon";
+  type: SetType;
   piece: GearPiece;
   honing_start: string;
   honing_end: string;
@@ -179,152 +194,98 @@ export type HoningFields = {
 
 export type HoningFieldsNumber = {
   id: string;
-  type: "armor" | "weapon";
+  type: SetType;
   tier: SetTier;
   honing_start: number;
   honing_end: number;
-  // honingData: EquipmentUpgradeData[];
-  upgradeCostsPerLvl: UpgradeCost[];
-  totalUpgradeCosts: UpgradeCost;
+  upgrades: UpgradeCostData[];
+  totalCosts: UpgradeCost;
 };
 
-const TIER_OPTIONS: OptionType[] = [
-  { id: "t1 302", label: "t1 302" },
-  { id: "t2 802", label: "t2 802" },
-  { id: "t3 1302", label: "t3 1302" },
-  { id: "t3 1340", label: "t3 1340" },
-];
+const ZERO_COSTS: UpgradeCost = {
+  shard: 0,
+  destruction: 0,
+  guardian: 0,
+  leapstone: 0,
+  fusion: 0,
+  gold: 0,
+  silver: 0,
+};
+
+const getAvgGearScore = (ilvls: number[]) =>
+  ilvls.reduce((prev, curr) => prev + curr, 0) / ilvls.length;
 
 const HoningCalculator = () => {
-  const [honingTable, setHoningTable] = useState<EquipmentUpgradeData[]>([]);
+  const { honingData, getHoningByLvl, getAvgCostByLvl, getGearScore } =
+    useHoningState();
   const [inputs, setInputs] = useState<HoningFields[]>(equipmentSet);
 
   const [selectedTier, setSelectedTier] = useState<OptionType>(TIER_OPTIONS[0]);
-  const tier_bp = tierBreakpoints[selectedTier.label];
+  const currentTier = selectedTier.id as SetTier;
+  const quickGearScoreOptions = tierBreakpoints[currentTier];
 
   const data: HoningFieldsNumber[] = inputs.map((values) => {
     const start = parseInt(values.honing_start) ?? 0;
     const end = parseInt(values.honing_end) ?? 0;
     const setType = values.type;
 
-    const upgradeCostsPerLvl: UpgradeCost[] = [];
-    // const honingData: EquipmentUpgradeData[] = [];
-
+    const upgrades: UpgradeCostData[] = [];
     for (let i = start; i < end; i++) {
-      const honingInfo = getUpgradeLevelDataByLvl(
-        selectedTier.label as SetTier,
-        setType,
-        i,
-        honingTable
-      );
+      const upgradeCostData = getAvgCostByLvl(currentTier, setType, i);
 
-      if (honingInfo) {
-        const costs = getUpgradeCosts(honingInfo.initial_success_rate, {
-          initialShards: honingInfo.initial_shards,
-          shard: honingInfo.trial_shards,
-          destruction: honingInfo.trial_destructions,
-          guardian: honingInfo.trial_guardians,
-          leapstone: honingInfo.trial_leapstones,
-          fusion: honingInfo.trial_fusion_mat,
-          gold: honingInfo.trial_gold,
-          silver: honingInfo.trial_silver,
-        });
-
-        // honingData.push(honingInfo);
-        upgradeCostsPerLvl.push(costs);
-      }
+      if (upgradeCostData) upgrades.push(upgradeCostData);
     }
 
-    const t = upgradeCostsPerLvl.reduce(
+    const totalCosts = upgrades.reduce(
       (prev, curr) => ({
-        shard: prev.shard + curr.shard,
-        destruction: prev.destruction + curr.destruction,
-        guardian: prev.guardian + curr.guardian,
-        leapstone: prev.leapstone + curr.leapstone,
-        fusion: prev.fusion + curr.fusion,
-        gold: prev.gold + curr.gold,
-        silver: prev.silver + curr.silver,
+        shard: prev.shard + curr.costs.shard,
+        destruction: prev.destruction + curr.costs.destruction,
+        guardian: prev.guardian + curr.costs.guardian,
+        leapstone: prev.leapstone + curr.costs.leapstone,
+        fusion: prev.fusion + curr.costs.fusion,
+        gold: prev.gold + curr.costs.gold,
+        silver: prev.silver + curr.costs.silver,
       }),
-      {
-        shard: 0,
-        destruction: 0,
-        guardian: 0,
-        leapstone: 0,
-        fusion: 0,
-        gold: 0,
-        silver: 0,
-      }
+      ZERO_COSTS
     );
 
     return {
       ...values,
-      tier: selectedTier.id as SetTier,
+      tier: currentTier,
       honing_start: start,
       honing_end: end,
-      // honingData,
-      upgradeCostsPerLvl,
-      totalUpgradeCosts: t,
+      upgrades,
+      totalCosts,
     };
   });
 
   const totalUpgradeCosts: UpgradeCost = data.reduce(
     (prev, curr) => ({
-      shard: prev.shard + Math.round(curr.totalUpgradeCosts.shard),
-      destruction:
-        prev.destruction + Math.round(curr.totalUpgradeCosts.destruction),
-      guardian: prev.guardian + Math.round(curr.totalUpgradeCosts.guardian),
-      leapstone: prev.leapstone + Math.round(curr.totalUpgradeCosts.leapstone),
-      fusion: prev.fusion + Math.round(curr.totalUpgradeCosts.fusion),
-      gold: prev.gold + Math.round(curr.totalUpgradeCosts.gold),
-      silver: prev.silver + Math.round(curr.totalUpgradeCosts.silver),
+      shard: prev.shard + Math.round(curr.totalCosts.shard),
+      destruction: prev.destruction + Math.round(curr.totalCosts.destruction),
+      guardian: prev.guardian + Math.round(curr.totalCosts.guardian),
+      leapstone: prev.leapstone + Math.round(curr.totalCosts.leapstone),
+      fusion: prev.fusion + Math.round(curr.totalCosts.fusion),
+      gold: prev.gold + Math.round(curr.totalCosts.gold),
+      silver: prev.silver + Math.round(curr.totalCosts.silver),
     }),
-    {
-      shard: 0,
-      destruction: 0,
-      guardian: 0,
-      leapstone: 0,
-      fusion: 0,
-      gold: 0,
-      silver: 0,
-    }
+    ZERO_COSTS
   );
 
-  const startingGearScore =
-    data.reduce((prev, curr) => {
-      const data = getUpgradeLevelDataByLvl(
-        curr.tier as SetTier,
-        curr.type,
-        curr.honing_start,
-        honingTable
-      );
+  const startingGearScore = getAvgGearScore(
+    data.map((setPiece) => getGearScore(setPiece.tier, setPiece.honing_start))
+  );
 
-      if (data) {
-        return prev + data.ilvl;
-      }
-      return 0;
-    }, 0) / 6;
-
-  const endingGearScore =
-    data.reduce((prev, curr) => {
-      const data = getUpgradeLevelDataByLvl(
-        curr.tier as SetTier,
-        curr.type,
-        curr.honing_end,
-        honingTable
-      );
-
-      if (data) {
-        return prev + data.ilvl;
-      }
-      return 0;
-    }, 0) / 6;
+  const endingGearScore = getAvgGearScore(
+    data.map((setPiece) => getGearScore(setPiece.tier, setPiece.honing_end))
+  );
 
   const inputLimits = {
     min: 0,
     max: Math.max(
-      ...honingTable
+      ...honingData
         .filter(
-          (row) => row.set_tier === selectedTier.id && row.set_type === "weapon"
+          (row) => row.set_tier === currentTier && row.set_type === "weapon"
         )
         .map(({ lvl }) => lvl)
     ),
@@ -340,45 +301,6 @@ const HoningCalculator = () => {
     });
   };
 
-  useEffect(() => {
-    const fetchHoningData = async () => {
-      let { data, error } = await supabase.from("honing_data").select("*");
-
-      if (data) {
-        const dataSanitized: EquipmentUpgradeData[] = data.map((row) => {
-          return {
-            set_tier: row.set_tier ?? "t1 302",
-            set_type: row.set_type ?? "weapon",
-
-            ilvl: row.ilvl ?? 0,
-            lvl: row.lvl ?? 0,
-
-            initial_success_rate: row.initial_success_rate ?? 0,
-            initial_shards: row.initial_shards ?? 0,
-
-            trial_destructions: row.trial_destructions ?? 0,
-            trial_fusion_mat: row.trial_fusion_mat ?? 0,
-            trial_gold: row.trial_gold ?? 0,
-            trial_guardians: row.trial_guardians ?? 0,
-            trial_leapstones: row.trial_leapstones ?? 0,
-            trial_shards: row.trial_shards ?? 0,
-            trial_silver: row.trial_silver ?? 0,
-
-            worst_case_leapstones: row.worst_case_leapstones ?? 0,
-            best_case_shards: row.best_case_shards ?? 0,
-            max_probability: row.max_probability ?? 0,
-            max_trials: row.max_trial ?? 0,
-          };
-        });
-        setHoningTable(dataSanitized);
-      }
-
-      console.log(data);
-    };
-
-    fetchHoningData();
-  }, []);
-
   return (
     <Container onClick={() => {}}>
       <Content>
@@ -388,21 +310,22 @@ const HoningCalculator = () => {
             value={selectedTier}
             onChange={setSelectedTier}
           />
-          {tier_bp.map((value, i) => (
+          {quickGearScoreOptions.map((value, i) => (
             <StyledButton
               key={i}
               onClick={() => {
                 setInputs((inputs) => {
                   return inputs.map((input) => ({
                     ...input,
-                    honing_start: value.start,
-                    honing_end: value.end,
+                    honing_start: value.start.toString(),
+                    honing_end: value.end.toString(),
                   }));
                 });
               }}
             >
               <>
-                {value.start_ilvl} -&gt; {value.end_ilvl}
+                {getGearScore(currentTier, value.start)} -&gt;{" "}
+                {getGearScore(currentTier, value.end)}
               </>
             </StyledButton>
           ))}
@@ -427,7 +350,7 @@ const HoningCalculator = () => {
               {Object.entries(totalUpgradeCosts).map(([k, v]) => (
                 <Mats
                   key={k}
-                  tier={selectedTier.id as SetTier}
+                  tier={currentTier}
                   material={k as MaterialTypes}
                   cost={v}
                 />
@@ -446,4 +369,12 @@ const HoningCalculator = () => {
   );
 };
 
-export default HoningCalculator;
+const HoningPage = () => {
+  return (
+    <HoningStateProvider>
+      <HoningCalculator />
+    </HoningStateProvider>
+  );
+};
+
+export default HoningPage;

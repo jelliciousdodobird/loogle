@@ -23,8 +23,9 @@ import T3SimpleFusion from "../assets/materials/t3-basic-fusion.png";
 import Gold from "../assets/materials/gold.png";
 import Silver from "../assets/materials/silver.png";
 import { GiMaterialsScience } from "react-icons/gi";
-import { SetTier } from "../utils/honing-calculations";
+// import { SetTier } from "../utils/honing-calculations";
 import styled from "@emotion/styled";
+import { SetTier } from "../contexts/HoningContext";
 
 type ImgProps = {
   img: StaticImageData;
@@ -74,6 +75,15 @@ const materialMap: MatMap = {
     gold: { img: Gold, size: 28 },
   },
   "t3 1340": {
+    leapstone: { img: T3Gleapstone, size: 32 },
+    shard: { img: T3Shard, size: 28 },
+    destruction: { img: T3Destruction, size: 32 },
+    guardian: { img: T3Guardian, size: 32 },
+    fusion: { img: T3BasicFusion, size: 32 },
+    silver: { img: Silver, size: 28 },
+    gold: { img: Gold, size: 28 },
+  },
+  "t3 relic": {
     leapstone: { img: T3Gleapstone, size: 32 },
     shard: { img: T3Shard, size: 28 },
     destruction: { img: T3Destruction, size: 32 },

@@ -56,6 +56,30 @@ const PositionContainer = styled.div`
   align-items: center;
 `;
 
+const Header = styled.h2`
+  /* border: 1px solid red; */
+
+  overflow: hidden;
+
+  position: absolute;
+  top: 0;
+  margin-top: 5px;
+  padding: 0.5rem;
+  width: 90%;
+
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  border-radius: 16px;
+
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 600;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const InputContainer = styled(motion.div)`
   /* padding: 0.5rem; */
   width: 2rem;
@@ -250,6 +274,7 @@ const HoningPieceInput = ({
 
   return (
     <Container>
+      <Header>{data.piece}</Header>
       <GearImage piece={data.piece} />
       <PositionContainer>
         <BubbleInput

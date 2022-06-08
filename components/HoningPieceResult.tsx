@@ -3,23 +3,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
 // icons:
-import { MdArrowDropDown, MdArrowRightAlt } from "react-icons/md";
-import { HoningFieldsNumber } from "../pages/honing";
 import {
-  EquipmentUpgradeData,
-  getUpgradeLevelDataByLvl,
-} from "../utils/honing-calculations";
+  MdArrowDropDown,
+  MdArrowRightAlt,
+  MdDoubleArrow,
+} from "react-icons/md";
 
-// images:
-import T1Leapstone from "../assets/materials/t1-leapstone.png";
-import T1Shard from "../assets/materials/t1-shard.png";
-import T1Destruction from "../assets/materials/t1-destruction.png";
-import T1Guardian from "../assets/materials/t1-guardian.png";
+import { useHoningState } from "../contexts/HoningContext";
+import { HoningFieldsNumber } from "../pages/honing";
 
-import Gold from "../assets/materials/gold.png";
-import Silver from "../assets/materials/silver.png";
-
-import Image from "next/image";
 import MaterialImageIcon, { MaterialTypes } from "./MaterialImageIcon";
 import Mats from "./Mats";
 
@@ -29,8 +21,6 @@ const Container = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  /* width: 100%; */
 `;
 
 const LevelTotalContainer = styled(motion.div)`
@@ -41,31 +31,39 @@ const LevelTotalContainer = styled(motion.div)`
 
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-
-  /* width: 100%; */
 `;
 
-const LevelTotal = styled.div`
+const LevelTotal = styled(motion.div)`
   /* border: 1px solid red; */
   /* width: 100%; */
 
-  border-radius: 5px;
   border-radius: 16px;
 
-  background-color: ${({ theme }) => theme.colors.surface.light};
+  background-color: ${({ theme }) => theme.colors.surface.main};
   padding: 0.5rem;
+
+  /* 
+    We use margin to separate each item 
+    to avoid a sudden collapse when animating this container. 
+    "gap: 0.5rem" was the problem since it cannot be animated.
+  */
+  margin-top: 0.5rem;
 
   display: flex;
   flex-direction: column;
   justify-content: center;
   /* align-items: center; */
-  gap: 0.25rem;
+  gap: 0.5rem;
+
+  &:hover {
+    /* background-color: ${({ theme }) => theme.colors.surface.darker}; */
+    /* background-color: ${({ theme }) => theme.colors.background.darker}; */
+  }
 `;
 
 const LvlWrapper = styled.div`
   padding: 0.3rem 0.75rem;
-  background-color: ${({ theme }) => theme.colors.surface.main};
+  background-color: ${({ theme }) => theme.colors.background.light};
   width: fit-content;
   border-radius: 16px;
 
@@ -95,6 +93,7 @@ const Arrow = styled.div`
   font-weight: 600;
   font-size: 0.8rem;
   font-style: italic;
+  color: inherit;
 
   svg {
     width: 100%;
@@ -110,17 +109,17 @@ const MatsWrapper = styled.div`
   gap: 0.5rem;
 `;
 
-const Delete = styled.div`
+const NoResults = styled.div`
   font-weight: 600;
 
   border-radius: 12px;
   background-color: ${({ theme }) => theme.colors.surface.light};
-  padding: 0.25rem 0.75rem;
+  padding: 1rem;
 
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
-  gap: 0.25rem;
+  /* gap: 0.25rem; */
 `;
 
 const Total = styled.div`
@@ -134,22 +133,18 @@ const Total = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.surface.light};
 
   &:hover {
+    border: 1px solid ${({ theme }) => theme.colors.background.dark};
     border: 1px solid ${({ theme }) => theme.colors.surface.lighter};
   }
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 `;
 
 const ArrowIcon = styled(motion.span)`
-  /* z-index: 10; */
-
-  position: absolute;
-  right: 0;
-  top: 0;
-
-  margin: 1rem;
-
   background-color: ${({ theme }) => theme.colors.surface.lighter};
 
-  /* background-color: red; */
   border-radius: 50%;
 
   width: 1.5rem;
@@ -165,21 +160,108 @@ const ArrowIcon = styled(motion.span)`
   }
 `;
 
+const SubHeader = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const SubTotalHeader = styled.div`
+  /* background-color: red; */
+
+  display: flex;
+`;
+
+const ItemsWrapper = styled.div`
+  flex: 1;
+
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const H = styled.h3`
+  font-size: 1rem;
+  font-weight: 600;
+  font-style: italic;
+
+  padding: 0.5rem 1rem;
+  background-color: ${({ theme }) => theme.colors.background.main};
+  /* border-radius: 16px; */
+
+  border-top-left-radius: 13px;
+  border-bottom-right-radius: 13px;
+
+  display: flex;
+  gap: 0.5rem;
+
+  span {
+    font-size: 0.8rem;
+    white-space: nowrap;
+    font-style: normal;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+`;
+
+const SubH = styled.h4`
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-style: italic;
+  /* color: #222; */
+
+  padding: 0.35rem 0.75rem;
+  background-color: ${({ theme }) => theme.colors.onBackground.darker};
+  background-color: ${({ theme }) => theme.colors.background.main};
+
+  border-top-left-radius: 13px;
+  border-bottom-right-radius: 13px;
+
+  display: flex;
+  gap: 0.25rem;
+
+  span {
+    color: inherit;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    font-style: normal;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+`;
+
 type Props = {
   data: HoningFieldsNumber;
 };
 
 const HoningPieceResults = ({ data }: Props) => {
   const [expand, setExpand] = useState(false);
+  const { getHoningByLvl } = useHoningState();
 
   const {
     honing_start,
     honing_end,
     tier,
-    upgradeCostsPerLvl,
-    totalUpgradeCosts,
+    type,
+    upgrades,
+    totalCosts: totalUpgradeCosts,
   } = data;
 
+  const showMore = expand && upgrades.length > 0;
   const animProps = {
     variants: {
       collapsed: {
@@ -199,40 +281,103 @@ const HoningPieceResults = ({ data }: Props) => {
     transition: { duration: 0.5 },
   };
 
+  const iconAnimProps = {
+    variants: {
+      initial: {
+        rotate: 0,
+      },
+      expand: {
+        rotate: 180,
+      },
+    },
+    initial: "initial",
+    animate: expand ? "expand" : "initial",
+
+    // transition: { duration: 0.5 },
+  };
+
+  const lvlAnimProps = {
+    variants: {
+      initial: (i: number) => ({
+        x: 500,
+        opacity: 0,
+        // transition: { delay: i * 0.03, duration: 0.5 },
+      }),
+      expand: (i: number) => ({
+        x: 0,
+        opacity: 1,
+        transition: { delay: i * 0.03, duration: 0.5 },
+      }),
+      remove: (i: number) => ({
+        x: 500,
+        opacity: 0,
+        transition: { delay: i * 0.03, duration: 0.5 },
+      }),
+    },
+    initial: "initial",
+    animate: expand ? "expand" : "initial",
+    exit: "remove",
+    // transition: { duration: 0.5 },
+  };
+
+  const startGearScore = getHoningByLvl(tier, type, honing_start)?.ilvl;
+  const endGearScore = getHoningByLvl(tier, type, honing_end)?.ilvl;
+
   return (
     <Container>
       <Total onClick={() => setExpand((v) => !v)}>
-        {upgradeCostsPerLvl.length === 0 && (
-          <Delete>No materials needed.</Delete>
+        <SubTotalHeader>
+          <ItemsWrapper>
+            {/* <H>
+              {startGearScore} -&gt; {endGearScore}
+            </H> */}
+            <H>
+              iLVL{" "}
+              <span>
+                {startGearScore}
+                <MdDoubleArrow />
+                {endGearScore}
+              </span>
+            </H>
+          </ItemsWrapper>
+
+          <ArrowIcon {...iconAnimProps}>
+            <MdArrowDropDown />
+          </ArrowIcon>
+        </SubTotalHeader>
+        <span>{} </span>
+        {upgrades.length === 0 && <NoResults>No materials needed.</NoResults>}
+        {upgrades.length > 0 && (
+          <MatsWrapper>
+            {Object.entries(totalUpgradeCosts).map(([mat, cost]) => (
+              <Mats
+                key={mat}
+                tier={tier}
+                material={mat as MaterialTypes}
+                cost={cost}
+              />
+            ))}
+          </MatsWrapper>
         )}
-        <MatsWrapper>
-          {Object.entries(totalUpgradeCosts).map(([mat, cost]) => (
-            <Mats
-              key={mat}
-              tier={tier}
-              material={mat as MaterialTypes}
-              cost={cost}
-            />
-          ))}
-        </MatsWrapper>
-        <ArrowIcon>
-          <MdArrowDropDown />
-        </ArrowIcon>
       </Total>
 
       <AnimatePresence>
-        {expand && (
+        {showMore && (
           <LevelTotalContainer {...animProps} onClick={() => console.log(data)}>
-            {upgradeCostsPerLvl.map((upgradeLvl, i) => (
-              <LevelTotal key={`${data.id}-${i}`}>
-                <LvlWrapper>
-                  <LvlBox>{honing_start + i}</LvlBox>
-                  <Arrow>-&gt;</Arrow>
-                  <LvlBox>{honing_start + i + 1}</LvlBox>
-                </LvlWrapper>
-
+            {upgrades.map((upgradeLvl, i) => (
+              <LevelTotal key={`${data.id}-${i}`} {...lvlAnimProps} custom={i}>
+                <SubHeader>
+                  <SubH>
+                    {honing_start + i}
+                    <Arrow>-&gt;</Arrow>
+                    {honing_start + i + 1}
+                  </SubH>
+                  <SubH>
+                    {upgradeLvl.honingLvl.initial_success_rate * 100}%
+                  </SubH>
+                </SubHeader>
                 <MatsWrapper>
-                  {Object.entries(upgradeLvl).map(([mat, cost]) => (
+                  {Object.entries(upgradeLvl.costs).map(([mat, cost]) => (
                     <Mats
                       key={mat}
                       tier={tier}
