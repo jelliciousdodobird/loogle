@@ -12,9 +12,12 @@ const Container = styled(motion.div)`
   font-weight: 600;
   font-size: 0.85rem;
 
+  height: 2.75rem;
+  padding: 0 0.75rem;
+
   border-radius: 12px;
   background-color: ${({ theme }) => theme.colors.surface.light};
-  padding: 0.25rem 0.75rem;
+  /* padding: 0.25rem 0.75rem; */
 
   display: flex;
   justify-content: center;
@@ -22,7 +25,8 @@ const Container = styled(motion.div)`
   gap: 0.25rem;
 
   &:hover {
-    background-color: ${({ theme }) => theme.colors.surface.lighter};
+    /* background-color: ${({ theme }) => theme.colors.surface.lighter}; */
+    background-color: rgba(255, 255, 255, 0.1);
   }
 `;
 
@@ -30,7 +34,7 @@ const Label = styled(motion.span)`
   position: absolute;
   bottom: 100%;
   left: 0;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
 
   padding: 0.25rem 0.5rem;
   border-radius: 8px;

@@ -42,11 +42,13 @@ type Props = {
 };
 
 const Img = styled.img`
-  /* image-rendering: pixelated; */
+  image-rendering: pixelated;
   /* filter: blur(1px); */
   /* object-fit: cover; */
   /* width: 120%; */
   /* height: 120%; */
+  width: 75%;
+  height: 75%;
 `;
 
 const GearImage = ({ piece = "chest", size }: Props) => {

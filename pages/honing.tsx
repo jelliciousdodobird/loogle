@@ -3,12 +3,15 @@ import styled from "@emotion/styled";
 import { redirect } from "next/dist/server/api-utils";
 
 import { useEffect, useState } from "react";
+import { MdDoubleArrow } from "react-icons/md";
 import Button from "../components/Button";
 import { GearPiece } from "../components/GearImage";
 import HoningPieceInput from "../components/HoningPieceInput";
 import HoningPieceResults from "../components/HoningPieceResult";
 import SelectInput, { OptionType } from "../components/inputs/SelectInput";
-import { MaterialTypes } from "../components/MaterialImageIcon";
+import MaterialImageIcon, {
+  MaterialTypes,
+} from "../components/MaterialImageIcon";
 import Mats from "../components/Mats";
 import {
   HoningStateProvider,
@@ -59,35 +62,115 @@ const EquipmentContainer = styled.div`
 const TotalContainer = styled.div`
   /* border: 2px dashed pink; */
 
-  padding: 1rem;
+  /* padding: 0.75rem; */
+  /* padding: 1rem; */
+
+  overflow: hidden;
+
   border-radius: 20px;
-  border: 1px solid ${({ theme }) => theme.colors.surface.main};
+  /* border: 1px solid ${({ theme }) => theme.colors.surface.main}; */
+  background-color: ${({ theme }) => theme.colors.surface.main};
 
   display: flex;
   flex-direction: column;
   /* flex-wrap: wrap; */
-  gap: 1rem;
+  /* gap: 0.5rem; */
+
+  .test:nth-of-type(2n) {
+    background-color: ${({ theme }) => theme.colors.surface.light};
+  }
+  .test:nth-of-type(2n + 1) {
+    background-color: ${({ theme }) => theme.colors.surface.dark};
+  }
+`;
+
+const TotalHeader = styled.h2`
+  padding: 0.75rem 1.1rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+
+  background-color: ${({ theme }) => theme.colors.background.dark};
 `;
 
 const ResultLine = styled.div`
+  /* background-color: red; */
+
+  /* flex: 1; */
+  padding: 1rem 2rem;
+
   display: flex;
   flex-direction: column;
+  justify-content: center;
 
-  gap: 1rem;
+  gap: 0.5rem;
+`;
+
+const ResultLine2 = styled.div`
+  height: 3rem;
+  max-height: 3rem;
+  /* background-color: red; */
+
+  /* flex: 1; */
+
+  padding: 0 2rem;
+
+  display: flex;
+
+  flex-direction: row;
+  /* justify-content: center; */
+  align-items: center;
+
+  gap: 0.5rem;
 `;
 
 const List = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
+
 const H = styled.h2`
-  color: white;
-  text-transform: uppercase;
+  /* color: white; */
+  flex: 1;
+  /* text-transform: uppercase; */
+
+  /* background-color: ${({ theme }) => theme.colors.background.main}; */
+
+  padding: 0.5rem 0.75rem;
+  padding: 0;
+  border-radius: 16px 0 16px 0;
+
+  width: min-content;
+
+  white-space: nowrap;
 
   font-weight: 600;
-  font-size: 1.25rem;
+  font-size: 1rem;
+  /* letter-spacing: 1px; */
+
+  display: flex;
+  align-items: center;
+`;
+
+const GearScoreText = styled.span`
+  /* border: 1px solid red; */
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  font-style: normal;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3px;
+
+  svg {
+    width: 14px;
+    height: 14px;
+
+    fill: ${({ theme }) => theme.colors.success.main};
+  }
 `;
 
 const CustomSelectedInput = styled(SelectInput)`
@@ -101,13 +184,18 @@ const StyledButton = styled(Button)`
 `;
 
 const PieceContainer = styled.div`
-  padding: 0.5rem;
+  /* padding: 0.5rem; */
   border-radius: 20px;
 
-  background-color: ${({ theme }) => theme.colors.surface.dark};
+  /* background-color: ${({ theme }) => theme.colors.surface.dark}; */
+  /* border: 1px solid ${({ theme }) => theme.colors.background.lighter}; */
 
   display: flex;
   gap: 0.5rem;
+`;
+
+const TotalMats = styled(Mats)`
+  background-color: ${({ theme }) => theme.colors.surface.lighter};
 `;
 
 const equipmentSet: HoningFields[] = [
@@ -196,6 +284,8 @@ export type HoningFieldsNumber = {
   id: string;
   type: SetType;
   tier: SetTier;
+  piece: GearPiece;
+
   honing_start: number;
   honing_end: number;
   upgrades: UpgradeCostData[];
@@ -344,11 +434,26 @@ const HoningCalculator = () => {
           ))}
         </EquipmentContainer>
         <TotalContainer>
-          <ResultLine>
-            <H>total materials required:</H>
+          <TotalHeader>SUMMARY</TotalHeader>
+          <ResultLine2 className="test">
+            <H>Gear Score</H>
+            <GearScoreText>
+              {startingGearScore.toFixed(2).replace(/[.,]00$/, "")}
+              <MdDoubleArrow />
+              {endingGearScore.toFixed(2).replace(/[.,]00$/, "")}
+            </GearScoreText>
+          </ResultLine2>
+          <ResultLine2 className="test">
+            <H>Material Gold Value</H>
+            {/* <Mats tier={currentTier} material={"gold"} cost={500} /> */}
+            <MaterialImageIcon tier="t1 302" material="gold" />
+            500
+          </ResultLine2>
+          <ResultLine className="test">
+            <H>Total Materials Required</H>
             <List>
               {Object.entries(totalUpgradeCosts).map(([k, v]) => (
-                <Mats
+                <TotalMats
                   key={k}
                   tier={currentTier}
                   material={k as MaterialTypes}
@@ -356,12 +461,6 @@ const HoningCalculator = () => {
                 />
               ))}
             </List>
-          </ResultLine>
-          <ResultLine>
-            <H>Gear score</H>
-            <span>
-              {startingGearScore} -&gt; {endingGearScore}
-            </span>
           </ResultLine>
         </TotalContainer>
       </Content>

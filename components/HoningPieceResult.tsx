@@ -65,8 +65,6 @@ const Arrow = styled.div`
 `;
 
 const MatsWrapper = styled.div`
-  /* flex: 1; */
-
   flex-flow: wrap;
   display: flex;
   gap: 0.5rem;
@@ -76,7 +74,8 @@ const NoResults = styled.div`
   font-weight: 600;
 
   border-radius: 12px;
-  background-color: ${({ theme }) => theme.colors.surface.light};
+  /* background-color: ${({ theme }) => theme.colors.surface.light}; */
+
   padding: 1rem;
 
   display: flex;
@@ -87,31 +86,123 @@ const NoResults = styled.div`
 
 const Total = styled.div`
   position: relative;
+  /* min-height: 7rem; */
+  min-height: 7rem;
 
-  padding: 0.5rem;
+  /* padding: 0.5rem; */
   border-radius: 16px;
   /* background-color: ${({ theme }) => theme.colors.background.main}; */
   /* background-color: ${({ theme }) => theme.colors.surface.light}; */
-
-  border: 1px solid ${({ theme }) => theme.colors.surface.light};
+  /* border: 1px solid ${({ theme }) => theme.colors.surface.light}; */
 
   &:hover {
-    border: 1px solid ${({ theme }) => theme.colors.background.dark};
-    border: 1px solid ${({ theme }) => theme.colors.surface.lighter};
+    /* border: 1px solid ${({ theme }) => theme.colors.surface.lighter}; */
   }
 
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  /* gap: 0.25rem; */
+`;
+
+const TotalHeader = styled.div`
+  cursor: pointer;
+
+  /* background-color: red; */
+  user-select: none;
+
+  border-radius: 16px 16px 0 0;
+  padding: 0 1rem;
+  height: 2.25rem;
+  max-height: 2.25rem;
+
+  background-color: ${({ theme }) => theme.colors.surface.dark};
+  background-color: ${({ theme }) => theme.colors.surface.light};
+  background-color: ${({ theme }) => theme.colors.background.dark};
+
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover {
+    .arrow-icon {
+      background-color: #fff;
+      svg {
+        fill: #222;
+      }
+    }
+  }
+`;
+
+const TotalContent = styled.div`
+  /* background-color: red; */
+
+  border-radius: 0 0 16px 16px;
+  flex: 1;
+
+  /* border: 1px solid ${({ theme }) => theme.colors.surface.light}; */
+  background-color: ${({ theme }) => theme.colors.surface.light};
+  background-color: ${({ theme }) => theme.colors.surface.lighter};
+  background-color: ${({ theme }) => theme.colors.surface.dark};
+
+  border-top: 0;
+
+  padding: 0.5rem;
+
+  display: flex;
+  align-items: center;
+  /* gap: 0.25rem; */
+`;
+
+const H = styled.h3`
+  font-size: 1.02rem;
+  font-weight: 600;
+  font-style: italic;
+
+  /* flex: 1; */
+
+  /* padding: 0.25rem 0.75rem; */
+  /* background-color: ${({ theme }) => theme.colors.background.lighter}; */
+  /* background-color: red; */
+  /* border-radius: 16px; */
+
+  border-top-left-radius: 13px;
+  border-bottom-right-radius: 13px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+
+  span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    font-style: normal;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
 `;
 
 const ArrowIcon = styled(motion.span)`
-  background-color: ${({ theme }) => theme.colors.surface.lighter};
+  position: absolute;
+  right: 0;
+  margin-right: 0.5rem;
+  /* background-color: ${({ theme }) => theme.colors.background.lighter}; */
 
   border-radius: 50%;
 
   width: 1.5rem;
   height: 1.5rem;
+
+  /* justify-self: flex-end; */
 
   display: flex;
   justify-content: center;
@@ -128,49 +219,11 @@ const SubHeader = styled.div`
   gap: 0.5rem;
 `;
 
-const SubTotalHeader = styled.div`
-  /* background-color: red; */
-
-  display: flex;
-`;
-
 const ItemsWrapper = styled.div`
   flex: 1;
 
   display: flex;
   gap: 0.5rem;
-`;
-
-const H = styled.h3`
-  font-size: 1rem;
-  font-weight: 600;
-  font-style: italic;
-
-  padding: 0.5rem 1rem;
-  background-color: ${({ theme }) => theme.colors.background.main};
-  /* border-radius: 16px; */
-
-  border-top-left-radius: 13px;
-  border-bottom-right-radius: 13px;
-
-  display: flex;
-  gap: 0.5rem;
-
-  span {
-    font-size: 0.8rem;
-    white-space: nowrap;
-    font-style: normal;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 3px;
-
-    svg {
-      width: 14px;
-      height: 14px;
-    }
-  }
 `;
 
 const SubH = styled.h4`
@@ -205,6 +258,10 @@ const SubH = styled.h4`
       height: 14px;
     }
   }
+`;
+
+const TotalMats = styled(Mats)`
+  background-color: transparent;
 `;
 
 type Props = {
@@ -257,17 +314,17 @@ const HoningPieceResults = ({ data }: Props) => {
     variants: {
       initial: (i: number) => ({
         x: 500,
-        // opacity: 0,
+        opacity: 0,
         // transition: { delay: i * 0.03, duration: 0.5 },
       }),
       expand: (i: number) => ({
         x: 0,
-        // opacity: 1,
+        opacity: 1,
         transition: { delay: i * 0.03, duration: 0.5 },
       }),
       remove: (i: number) => ({
         x: 500,
-        // opacity: 0,
+        opacity: 0,
         transition: { delay: i * 0.03, duration: 0.5 },
       }),
     },
@@ -282,37 +339,34 @@ const HoningPieceResults = ({ data }: Props) => {
 
   return (
     <Container>
-      <Total onClick={() => setExpand((v) => !v)}>
-        <SubTotalHeader>
-          <ItemsWrapper>
-            <H>
-              iLVL{" "}
-              <span>
-                {startGearScore}
-                <MdDoubleArrow />
-                {endGearScore}
-              </span>
-            </H>
-          </ItemsWrapper>
-
-          <ArrowIcon {...iconAnimProps}>
+      <Total>
+        <TotalHeader onClick={() => setExpand((v) => !v)}>
+          <H>
+            <span>
+              {startGearScore}
+              <MdDoubleArrow />
+              {endGearScore}
+            </span>
+          </H>
+          <ArrowIcon {...iconAnimProps} className="arrow-icon">
             <MdArrowDropDown />
           </ArrowIcon>
-        </SubTotalHeader>
-        <span>{} </span>
-        {upgrades.length === 0 && <NoResults>No materials needed.</NoResults>}
-        {upgrades.length > 0 && (
-          <MatsWrapper>
-            {Object.entries(totalUpgradeCosts).map(([mat, cost]) => (
-              <Mats
-                key={mat}
-                tier={tier}
-                material={mat as MaterialTypes}
-                cost={cost}
-              />
-            ))}
-          </MatsWrapper>
-        )}
+        </TotalHeader>
+        <TotalContent>
+          {upgrades.length === 0 && <NoResults>No materials needed.</NoResults>}
+          {upgrades.length > 0 && (
+            <MatsWrapper>
+              {Object.entries(totalUpgradeCosts).map(([mat, cost]) => (
+                <TotalMats
+                  key={mat}
+                  tier={tier}
+                  material={mat as MaterialTypes}
+                  cost={cost}
+                />
+              ))}
+            </MatsWrapper>
+          )}
+        </TotalContent>
       </Total>
 
       <AnimatePresence>
