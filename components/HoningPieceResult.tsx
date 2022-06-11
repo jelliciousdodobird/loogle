@@ -16,17 +16,12 @@ import MaterialImageIcon, { MaterialTypes } from "./MaterialImageIcon";
 import Mats from "./Mats";
 
 const Container = styled.div`
-  /* border: 1px solid red; */
-
   flex: 1;
   display: flex;
   flex-direction: column;
 `;
 
 const LevelTotalContainer = styled(motion.div)`
-  /* flex: 1; */
-  /* height: 50px; */
-
   overflow: hidden;
 
   display: flex;
@@ -34,9 +29,6 @@ const LevelTotalContainer = styled(motion.div)`
 `;
 
 const LevelTotal = styled(motion.div)`
-  /* border: 1px solid red; */
-  /* width: 100%; */
-
   border-radius: 16px;
 
   background-color: ${({ theme }) => theme.colors.surface.main};
@@ -52,41 +44,12 @@ const LevelTotal = styled(motion.div)`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* align-items: center; */
   gap: 0.5rem;
 
   &:hover {
     /* background-color: ${({ theme }) => theme.colors.surface.darker}; */
     /* background-color: ${({ theme }) => theme.colors.background.darker}; */
   }
-`;
-
-const LvlWrapper = styled.div`
-  padding: 0.3rem 0.75rem;
-  background-color: ${({ theme }) => theme.colors.background.light};
-  width: fit-content;
-  border-radius: 16px;
-
-  display: flex;
-  /* justify-content: center; */
-  align-items: center;
-  gap: 0.25rem;
-`;
-
-const LvlBox = styled.div`
-  border-radius: 2px;
-  /* width: 1.5rem; */
-  /* height: 1.5rem; */
-
-  /* background-color: ${({ theme }) => theme.colors.surface.light}; */
-  /* background-color: ${({ theme }) => theme.colors.background.main}; */
-
-  font-weight: 600;
-  font-size: 0.8rem;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
 `;
 
 const Arrow = styled.div`
@@ -262,22 +225,18 @@ const HoningPieceResults = ({ data }: Props) => {
   } = data;
 
   const showMore = expand && upgrades.length > 0;
-  const animProps = {
+  const drawerAnimProps = {
     variants: {
       collapsed: {
         height: 0,
-        opacity: 0,
       },
       expand: {
         height: "auto",
-        opacity: 1,
-        // scale: 1.1,
       },
     },
     initial: "collapsed",
     animate: "expand",
     exit: "collapsed",
-
     transition: { duration: 0.5 },
   };
 
@@ -292,32 +251,30 @@ const HoningPieceResults = ({ data }: Props) => {
     },
     initial: "initial",
     animate: expand ? "expand" : "initial",
-
-    // transition: { duration: 0.5 },
   };
 
   const lvlAnimProps = {
     variants: {
       initial: (i: number) => ({
         x: 500,
-        opacity: 0,
+        // opacity: 0,
         // transition: { delay: i * 0.03, duration: 0.5 },
       }),
       expand: (i: number) => ({
         x: 0,
-        opacity: 1,
+        // opacity: 1,
         transition: { delay: i * 0.03, duration: 0.5 },
       }),
       remove: (i: number) => ({
         x: 500,
-        opacity: 0,
+        // opacity: 0,
         transition: { delay: i * 0.03, duration: 0.5 },
       }),
     },
     initial: "initial",
     animate: expand ? "expand" : "initial",
     exit: "remove",
-    // transition: { duration: 0.5 },
+    transition: { duration: 0.5 },
   };
 
   const startGearScore = getHoningByLvl(tier, type, honing_start)?.ilvl;
@@ -328,9 +285,6 @@ const HoningPieceResults = ({ data }: Props) => {
       <Total onClick={() => setExpand((v) => !v)}>
         <SubTotalHeader>
           <ItemsWrapper>
-            {/* <H>
-              {startGearScore} -&gt; {endGearScore}
-            </H> */}
             <H>
               iLVL{" "}
               <span>
@@ -363,7 +317,10 @@ const HoningPieceResults = ({ data }: Props) => {
 
       <AnimatePresence>
         {showMore && (
-          <LevelTotalContainer {...animProps} onClick={() => console.log(data)}>
+          <LevelTotalContainer
+            {...drawerAnimProps}
+            onClick={() => console.log(data)}
+          >
             {upgrades.map((upgradeLvl, i) => (
               <LevelTotal key={`${data.id}-${i}`} {...lvlAnimProps} custom={i}>
                 <SubHeader>
