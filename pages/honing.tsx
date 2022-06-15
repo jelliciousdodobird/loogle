@@ -22,6 +22,7 @@ import {
   SetTier,
   SetType,
 } from "../contexts/HoningContext";
+import { prettyNumber } from "../utils/utils";
 
 const Container = styled.div`
   padding: 1rem 0;
@@ -457,9 +458,9 @@ const HoningCalculator = () => {
           <ResultLine2 className="test">
             <H>Gear Score</H>
             <GearScoreText>
-              {startingGearScore.toFixed(2).replace(/[.,]00$/, "")}
+              {prettyNumber(startingGearScore)}
               <MdDoubleArrow />
-              {endingGearScore.toFixed(2).replace(/[.,]00$/, "")}
+              {prettyNumber(endingGearScore)}
             </GearScoreText>
           </ResultLine2>
           <ResultLine2 className="test">

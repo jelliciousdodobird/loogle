@@ -13,6 +13,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import GearImage from "./GearImage";
 
 import { MdAdd } from "react-icons/md";
+import { clamp } from "../utils/utils";
 
 const squareSize = 7;
 
@@ -282,9 +283,6 @@ const BubbleInput = ({
 
     transition: { duration: 0.25 },
   };
-
-  const clamp = (num: number, min: number, max: number) =>
-    Math.min(Math.max(num, min), max);
 
   const increment = () => {
     if (stepper) {

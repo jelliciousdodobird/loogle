@@ -11,6 +11,8 @@ import {
 
 import { useHoningState } from "../contexts/HoningContext";
 import { HoningFieldsNumber } from "../pages/honing";
+import { prettyNumber } from "../utils/utils";
+import InfoLabel from "./InfoLabel";
 
 import MaterialImageIcon, { MaterialTypes } from "./MaterialImageIcon";
 import Mats from "./Mats";
@@ -111,7 +113,7 @@ const TotalHeader = styled.div`
   user-select: none;
 
   border-radius: 16px 16px 0 0;
-  padding: 0 1rem;
+  padding: 0 0.5rem;
   height: 2.25rem;
   max-height: 2.25rem;
 
@@ -192,9 +194,9 @@ const H = styled.h3`
 `;
 
 const ArrowIcon = styled(motion.span)`
-  position: absolute;
-  right: 0;
-  margin-right: 0.5rem;
+  /* position: absolute; */
+  /* right: 0; */
+  /* margin-right: 0.5rem; */
   /* background-color: ${({ theme }) => theme.colors.background.lighter}; */
 
   border-radius: 50%;
@@ -341,6 +343,9 @@ const HoningPieceResults = ({ data }: Props) => {
     <Container>
       <Total>
         <TotalHeader onClick={() => setExpand((v) => !v)}>
+          <ArrowIcon {...iconAnimProps} className="arrow-icon">
+            <MdArrowDropDown />
+          </ArrowIcon>
           <H>
             <span>
               {startGearScore}
@@ -348,9 +353,6 @@ const HoningPieceResults = ({ data }: Props) => {
               {endGearScore}
             </span>
           </H>
-          <ArrowIcon {...iconAnimProps} className="arrow-icon">
-            <MdArrowDropDown />
-          </ArrowIcon>
         </TotalHeader>
         <TotalContent>
           {upgrades.length === 0 && <NoResults>No materials needed.</NoResults>}
@@ -378,14 +380,17 @@ const HoningPieceResults = ({ data }: Props) => {
             {upgrades.map((upgradeLvl, i) => (
               <LevelTotal key={`${data.id}-${i}`} {...lvlAnimProps} custom={i}>
                 <SubHeader>
-                  <SubH>
+                  <InfoLabel tooltipText="honing level">
                     {honing_start + i}
                     <Arrow>-&gt;</Arrow>
                     {honing_start + i + 1}
-                  </SubH>
-                  <SubH>
+                  </InfoLabel>
+                  <InfoLabel tooltipText="success rate">
                     {upgradeLvl.honingLvl.initial_success_rate * 100}%
-                  </SubH>
+                  </InfoLabel>
+                  <InfoLabel tooltipText="expected value">
+                    {prettyNumber(upgradeLvl.expectedValue)}
+                  </InfoLabel>
                 </SubHeader>
                 <MatsWrapper>
                   {Object.entries(upgradeLvl.costs).map(([mat, cost]) => (

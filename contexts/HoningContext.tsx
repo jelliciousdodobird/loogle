@@ -75,6 +75,7 @@ export type UpgradeCost = {
 };
 
 export type UpgradeCostData = {
+  expectedValue: number;
   costs: UpgradeCost;
   honingLvl: EquipmentUpgradeData;
 };
@@ -117,6 +118,7 @@ const HoningStateProvider = ({ children }: HoningProviderProps) => {
     const ev = expected_value(honingRate ?? honingLvl.initial_success_rate);
 
     return {
+      expectedValue: ev,
       honingLvl,
       costs: {
         shard: ev * honingLvl.trial_shards + honingLvl.initial_shards,
