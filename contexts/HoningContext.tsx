@@ -80,9 +80,12 @@ export type UpgradeCostData = {
 };
 
 const t: StrongholdBuff = {
-  "t1 302": { initial_shards_reduction_rate: 0, increased_success_rate: 0 },
-  "t2 802": { initial_shards_reduction_rate: 0, increased_success_rate: 0 },
-  "t3 1302": { initial_shards_reduction_rate: 0, increased_success_rate: 0 },
+  "t1 302": { initial_shards_reduction_rate: 0.2, increased_success_rate: 0.2 },
+  "t2 802": { initial_shards_reduction_rate: 0.2, increased_success_rate: 0.2 },
+  "t3 1302": {
+    initial_shards_reduction_rate: 0.2,
+    increased_success_rate: 0.1,
+  },
   "t3 1340": { initial_shards_reduction_rate: 0, increased_success_rate: 0 },
   "t3 relic": { initial_shards_reduction_rate: 0, increased_success_rate: 0 },
 };
@@ -92,7 +95,8 @@ const HoningStateContext = createContext<State | undefined>(undefined);
 const HoningStateProvider = ({ children }: HoningProviderProps) => {
   const [honingData, setHoningData] = useState<EquipmentUpgradeData[]>([]);
 
-  const [strongHoldResearch, setStrongHoldResearch] = useState();
+  const [strongHoldResearch, setStrongHoldResearch] =
+    useState<keyof StrongholdBuff>();
 
   const getHoningByLvl = (tier: SetTier, type: SetType, level: number) => {
     return honingData.find(

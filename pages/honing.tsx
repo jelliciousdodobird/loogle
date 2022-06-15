@@ -313,16 +313,30 @@ const HoningCalculator = () => {
   const [selectedTier, setSelectedTier] = useState<OptionType>(TIER_OPTIONS[0]);
   const currentTier = selectedTier.id as SetTier;
   const quickGearScoreOptions = tierBreakpoints[currentTier];
+  const inputLimits = {
+    min: 0,
+    max:
+      honingData.length > 0
+        ? Math.max(
+            ...honingData
+              .filter(
+                (row) =>
+                  row.set_tier === currentTier && row.set_type === "weapon"
+              )
+              .map(({ lvl }) => lvl)
+          )
+        : 0,
+  };
 
   const data: HoningFieldsNumber[] = inputs.map((values) => {
     const start = parseInt(values.honing_start) ?? 0;
     const end = parseInt(values.honing_end) ?? 0;
     const setType = values.type;
+    const endLimit = Math.min(end, inputLimits.max);
 
     const upgrades: UpgradeCostData[] = [];
-    for (let i = start; i < end; i++) {
+    for (let i = start; i < endLimit; i++) {
       const upgradeCostData = getAvgCostByLvl(currentTier, setType, i);
-
       if (upgradeCostData) upgrades.push(upgradeCostData);
     }
 
@@ -370,17 +384,6 @@ const HoningCalculator = () => {
     data.map((setPiece) => getGearScore(setPiece.tier, setPiece.honing_end))
   );
 
-  const inputLimits = {
-    min: 0,
-    max: Math.max(
-      ...honingData
-        .filter(
-          (row) => row.set_tier === currentTier && row.set_type === "weapon"
-        )
-        .map(({ lvl }) => lvl)
-    ),
-  };
-
   const changeInput = (value: HoningFields) => {
     setInputs((inputs) => {
       const index = inputs.findIndex((v) => v.id === value.id);
@@ -390,6 +393,22 @@ const HoningCalculator = () => {
       else return inputs;
     });
   };
+
+  useEffect(() => {
+    setInputs((inputs) =>
+      inputs.map((field) => ({
+        ...field,
+        honing_start: `${Math.min(
+          inputLimits.max,
+          parseInt(field.honing_start) ?? 0
+        )}`,
+        honing_end: `${Math.min(
+          inputLimits.max,
+          parseInt(field.honing_end) ?? inputLimits.max
+        )}`,
+      }))
+    );
+  }, [selectedTier]);
 
   return (
     <Container onClick={() => {}}>

@@ -208,6 +208,8 @@ const ButtonContainer = styled(motion.div)`
 
 const Button = styled.button`
   /* background-color: ${({ theme }) => theme.colors.background.main}; */
+  cursor: default;
+
   color: white;
   padding: 0.3rem;
 
@@ -222,8 +224,18 @@ const Button = styled.button`
   /* padding: 0.2rem; */
 
   svg {
-    width: 12px;
-    height: 12px;
+    /* width: 12px; */
+    /* height: 12px; */
+  }
+
+  &:hover {
+    .add {
+      fill: ${({ theme }) => theme.colors.success.main};
+    }
+
+    .remove {
+      fill: ${({ theme }) => theme.colors.danger.main};
+    }
   }
 `;
 
@@ -236,7 +248,7 @@ type BubbleInputProps = {
   max?: number;
   value: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  onBlur?: FocusEventHandler<HTMLInputElement> | undefined;
+  onBlur?: () => void | undefined;
   stepper?: (value: number) => void;
 };
 
@@ -292,7 +304,7 @@ const BubbleInput = ({
     <InputContainer
       onFocus={() => setIsFocused(true)}
       onBlur={(e) => {
-        // onBlur && onBlur(e);
+        onBlur && onBlur();
         setIsFocused(false);
       }}
     >
@@ -305,7 +317,7 @@ const BubbleInput = ({
                 increment && increment();
               }}
             >
-              <MdAdd shapeRendering="crispEdges" />
+              <MdAdd className="add" shapeRendering="crispEdges" />
             </Button>{" "}
             <BottomButton
               type="button"
@@ -313,7 +325,7 @@ const BubbleInput = ({
                 decrement && decrement();
               }}
             >
-              <MdRemove shapeRendering="crispEdges" />
+              <MdRemove className="remove" shapeRendering="crispEdges" />
             </BottomButton>
           </ButtonContainer>
         )}
@@ -325,15 +337,6 @@ const BubbleInput = ({
         max={max}
         value={value}
         onChange={onChange}
-        // onFocus={() => setIsFocused(true)}
-        // onBlur={(e) => {
-        //   onBlur && onBlur(e);
-        //   setIsFocused(false);
-        // }}
-        onBlur={(e) => {
-          onBlur && onBlur(e);
-          // setIsFocused(false);
-        }}
       />
     </InputContainer>
   );
@@ -387,7 +390,7 @@ const HoningPieceInput = ({
   const endStepper = (value: number) =>
     handleChange({ ...data, honing_end: value.toString() });
 
-  const startBlurHandler = (e: ChangeEvent<HTMLInputElement>) => {
+  const startBlurHandler = () => {
     const { honing_start, honing_end } = data;
 
     const start = validateInput(honing_start);
@@ -402,7 +405,7 @@ const HoningPieceInput = ({
     });
   };
 
-  const endBlurHandler = (e: ChangeEvent<HTMLInputElement>) => {
+  const endBlurHandler = () => {
     const { honing_end, honing_start } = data;
 
     const start = validateInput(honing_start);
