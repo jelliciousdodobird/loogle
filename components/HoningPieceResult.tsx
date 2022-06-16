@@ -380,15 +380,20 @@ const HoningPieceResults = ({ data }: Props) => {
             {upgrades.map((upgradeLvl, i) => (
               <LevelTotal key={`${data.id}-${i}`} {...lvlAnimProps} custom={i}>
                 <SubHeader>
-                  <InfoLabel tooltipText="honing level">
+                  <InfoLabel
+                    tooltipTitle="honing level"
+                    tooltipDescription={`Honing from levels ${
+                      honing_start + i
+                    } to ${honing_start + i + 1}.`}
+                  >
                     {honing_start + i}
                     <Arrow>-&gt;</Arrow>
                     {honing_start + i + 1}
                   </InfoLabel>
-                  <InfoLabel tooltipText="success rate">
+                  <InfoLabel tooltipTitle="success rate">
                     {upgradeLvl.honingLvl.initial_success_rate * 100}%
                   </InfoLabel>
-                  <InfoLabel tooltipText="expected value">
+                  <InfoLabel tooltipTitle="expected value">
                     {prettyNumber(upgradeLvl.expectedValue)}
                   </InfoLabel>
                 </SubHeader>
