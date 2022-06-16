@@ -57,3 +57,6 @@ export const ORIGIN: Position = { x: 0, y: 0 };
 
 export const clamp = (num: number, min: number, max: number) =>
   Math.max(min, Math.min(num, max));
+
+export const prettyNumber = (num: number) =>
+  num.toFixed(2).replace(/[.,]00$/, "");

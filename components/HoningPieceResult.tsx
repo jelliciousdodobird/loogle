@@ -3,76 +3,62 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 
 // icons:
-import { MdArrowRightAlt } from "react-icons/md";
-import { HoningFieldsNumber } from "../pages/honing";
 import {
-  EquipmentUpgradeData,
-  getUpgradeLevelDataByLvl,
-} from "../utils/honing-calculations";
+  MdArrowDropDown,
+  MdArrowRightAlt,
+  MdDoubleArrow,
+} from "react-icons/md";
+
+import { useHoningState } from "../contexts/HoningContext";
+import { HoningFieldsNumber } from "../pages/honing";
+import { prettyNumber } from "../utils/utils";
+import InfoLabel from "./InfoLabel";
+
+import MaterialImageIcon, { MaterialTypes } from "./MaterialImageIcon";
+import Mats from "./Mats";
 
 const Container = styled.div`
-  /* border: 1px solid red; */
-
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  /* width: 100%; */
 `;
 
 const LevelTotalContainer = styled(motion.div)`
-  /* flex: 1; */
-  /* height: 50px; */
-
   overflow: hidden;
 
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-
-  /* width: 100%; */
 `;
 
-const LevelTotal = styled.div`
-  /* border: 1px solid red; */
-  /* width: 100%; */
+const LevelTotal = styled(motion.div)`
+  border-radius: 16px;
 
-  border-radius: 5px;
-  background-color: ${({ theme }) => theme.colors.surface.light};
+  background-color: ${({ theme }) => theme.colors.surface.main};
   padding: 0.5rem;
+
+  /* 
+    We use margin to separate each item 
+    to avoid a sudden collapse when animating this container. 
+    "gap: 0.5rem" was the problem since it cannot be animated.
+  */
+  margin-top: 0.5rem;
 
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* align-items: center; */
-  gap: 0.25rem;
-`;
+  gap: 0.5rem;
 
-const LvlWrapper = styled.div`
-  display: flex;
-  /* justify-content: center; */
-  align-items: center;
-`;
-
-const LvlBox = styled.div`
-  border-radius: 2px;
-  width: 1.5rem;
-  height: 1.5rem;
-
-  background-color: ${({ theme }) => theme.colors.surface.light};
-  background-color: ${({ theme }) => theme.colors.background.main};
-
-  font-weight: 600;
-  font-size: 0.8rem;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  &:hover {
+    /* background-color: ${({ theme }) => theme.colors.surface.darker}; */
+    /* background-color: ${({ theme }) => theme.colors.background.darker}; */
+  }
 `;
 
 const Arrow = styled.div`
-  width: 1.2rem;
-  height: 1.2rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: inherit;
 
   svg {
     width: 100%;
@@ -81,46 +67,144 @@ const Arrow = styled.div`
 `;
 
 const MatsWrapper = styled.div`
-  /* flex: 1; */
-
   flex-flow: wrap;
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
-const Mats = styled.div`
+const NoResults = styled.div`
   font-weight: 600;
 
+  border-radius: 12px;
+  /* background-color: ${({ theme }) => theme.colors.surface.light}; */
+
+  padding: 1rem;
+
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
+  /* gap: 0.25rem; */
 `;
 
 const Total = styled.div`
   position: relative;
+  /* min-height: 7rem; */
+  min-height: 7rem;
 
-  padding: 1rem;
-  border-radius: 5px;
-  background-color: ${({ theme }) => theme.colors.background.main};
+  /* padding: 0.5rem; */
+  border-radius: 16px;
+  /* background-color: ${({ theme }) => theme.colors.background.main}; */
+  /* background-color: ${({ theme }) => theme.colors.surface.light}; */
+  /* border: 1px solid ${({ theme }) => theme.colors.surface.light}; */
+
+  &:hover {
+    /* border: 1px solid ${({ theme }) => theme.colors.surface.lighter}; */
+  }
+
+  display: flex;
+  flex-direction: column;
+  /* gap: 0.25rem; */
+`;
+
+const TotalHeader = styled.div`
+  cursor: pointer;
+
+  /* background-color: red; */
+  user-select: none;
+
+  border-radius: 16px 16px 0 0;
+  padding: 0 0.5rem;
+  height: 2.25rem;
+  max-height: 2.25rem;
+
+  background-color: ${({ theme }) => theme.colors.surface.dark};
   background-color: ${({ theme }) => theme.colors.surface.light};
+  background-color: ${({ theme }) => theme.colors.background.dark};
+
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover {
+    .arrow-icon {
+      background-color: #fff;
+      svg {
+        fill: #222;
+      }
+    }
+  }
+`;
+
+const TotalContent = styled.div`
+  /* background-color: red; */
+
+  border-radius: 0 0 16px 16px;
+  flex: 1;
+
+  /* border: 1px solid ${({ theme }) => theme.colors.surface.light}; */
+  background-color: ${({ theme }) => theme.colors.surface.light};
+  background-color: ${({ theme }) => theme.colors.surface.lighter};
+  background-color: ${({ theme }) => theme.colors.surface.dark};
+
+  border-top: 0;
+
+  padding: 0.5rem;
+
+  display: flex;
+  align-items: center;
+  /* gap: 0.25rem; */
+`;
+
+const H = styled.h3`
+  font-size: 1.02rem;
+  font-weight: 600;
+  font-style: italic;
+
+  /* flex: 1; */
+
+  /* padding: 0.25rem 0.75rem; */
+  /* background-color: ${({ theme }) => theme.colors.background.lighter}; */
+  /* background-color: red; */
+  /* border-radius: 16px; */
+
+  border-top-left-radius: 13px;
+  border-bottom-right-radius: 13px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+
+  span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    font-style: normal;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
 `;
 
 const ArrowIcon = styled(motion.span)`
-  /* z-index: 10; */
+  /* position: absolute; */
+  /* right: 0; */
+  /* margin-right: 0.5rem; */
+  /* background-color: ${({ theme }) => theme.colors.background.lighter}; */
 
-  position: absolute;
-  right: 0;
-  top: 0;
-
-  margin: 0.5rem;
-
-  background-color: ${({ theme }) => theme.colors.surface.lighter};
-
-  /* background-color: red; */
   border-radius: 50%;
 
   width: 1.5rem;
   height: 1.5rem;
+
+  /* justify-self: flex-end; */
 
   display: flex;
   justify-content: center;
@@ -132,120 +216,191 @@ const ArrowIcon = styled(motion.span)`
   }
 `;
 
+const SubHeader = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const ItemsWrapper = styled.div`
+  flex: 1;
+
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const SubH = styled.h4`
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-style: italic;
+  /* color: #222; */
+
+  padding: 0.35rem 0.75rem;
+  background-color: ${({ theme }) => theme.colors.onBackground.darker};
+  background-color: ${({ theme }) => theme.colors.background.main};
+
+  border-top-left-radius: 13px;
+  border-bottom-right-radius: 13px;
+
+  display: flex;
+  gap: 0.25rem;
+
+  span {
+    color: inherit;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    font-style: normal;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+`;
+
+const TotalMats = styled(Mats)`
+  background-color: transparent;
+`;
+
 type Props = {
   data: HoningFieldsNumber;
-  honingTable: EquipmentUpgradeData[];
 };
 
-const HoningPieceResults = ({ data, honingTable }: Props) => {
-  //     id: string;
-  //     type: "armor" | "weapon";
-  //     honing_start: number;
-  //     honing_end: number;
-  //     upgradeCosts: UpgradeCost[]
-
+const HoningPieceResults = ({ data }: Props) => {
   const [expand, setExpand] = useState(false);
+  const { getHoningByLvl } = useHoningState();
 
   const {
     honing_start,
     honing_end,
-    upgradeCostsPerLvl: upgradeCosts,
-    totalUpgradeCosts,
+    tier,
+    type,
+    upgrades,
+    totalCosts: totalUpgradeCosts,
   } = data;
 
-  const animProps = {
+  const showMore = expand && upgrades.length > 0;
+  const drawerAnimProps = {
     variants: {
       collapsed: {
         height: 0,
-        opacity: 0,
       },
       expand: {
         height: "auto",
-        opacity: 1,
-        // scale: 1.1,
       },
     },
     initial: "collapsed",
     animate: "expand",
     exit: "collapsed",
-
     transition: { duration: 0.5 },
   };
 
+  const iconAnimProps = {
+    variants: {
+      initial: {
+        rotate: 0,
+      },
+      expand: {
+        rotate: 180,
+      },
+    },
+    initial: "initial",
+    animate: expand ? "expand" : "initial",
+  };
+
+  const lvlAnimProps = {
+    variants: {
+      initial: (i: number) => ({
+        x: 500,
+        opacity: 0,
+        // transition: { delay: i * 0.03, duration: 0.5 },
+      }),
+      expand: (i: number) => ({
+        x: 0,
+        opacity: 1,
+        transition: { delay: i * 0.03, duration: 0.5 },
+      }),
+      remove: (i: number) => ({
+        x: 500,
+        opacity: 0,
+        transition: { delay: i * 0.03, duration: 0.5 },
+      }),
+    },
+    initial: "initial",
+    animate: expand ? "expand" : "initial",
+    exit: "remove",
+    transition: { duration: 0.5 },
+  };
+
+  const startGearScore = getHoningByLvl(tier, type, honing_start)?.ilvl;
+  const endGearScore = getHoningByLvl(tier, type, honing_end)?.ilvl;
+
   return (
     <Container>
-      <Total onClick={() => setExpand((v) => !v)}>
-        {/* <LevelTotal> */}
-        <MatsWrapper>
-          {totalUpgradeCosts.total_destruction_stones > 0 && (
-            <Mats>
-              {Math.round(totalUpgradeCosts.total_destruction_stones)} DS
-            </Mats>
+      <Total>
+        <TotalHeader onClick={() => setExpand((v) => !v)}>
+          <ArrowIcon {...iconAnimProps} className="arrow-icon">
+            <MdArrowDropDown />
+          </ArrowIcon>
+          <H>
+            <span>
+              {startGearScore}
+              <MdDoubleArrow />
+              {endGearScore}
+            </span>
+          </H>
+        </TotalHeader>
+        <TotalContent>
+          {upgrades.length === 0 && <NoResults>No materials needed.</NoResults>}
+          {upgrades.length > 0 && (
+            <MatsWrapper>
+              {Object.entries(totalUpgradeCosts).map(([mat, cost]) => (
+                <TotalMats
+                  key={mat}
+                  tier={tier}
+                  material={mat as MaterialTypes}
+                  cost={cost}
+                />
+              ))}
+            </MatsWrapper>
           )}
-          {totalUpgradeCosts.total_guardian_stones > 0 && (
-            <Mats>
-              {Math.round(totalUpgradeCosts.total_guardian_stones)} GS
-            </Mats>
-          )}
-          {totalUpgradeCosts.total_leapstones > 0 && (
-            <Mats>{Math.round(totalUpgradeCosts.total_leapstones)} LS</Mats>
-          )}
-          {totalUpgradeCosts.total_fusion > 0 && (
-            <Mats>{Math.round(totalUpgradeCosts.total_fusion)} F</Mats>
-          )}
-          {totalUpgradeCosts.total_shards > 0 && (
-            <Mats>{Math.round(totalUpgradeCosts.total_shards)} Sh</Mats>
-          )}
-          {totalUpgradeCosts.total_silver > 0 && (
-            <Mats>{Math.round(totalUpgradeCosts.total_silver)} S</Mats>
-          )}
-          {totalUpgradeCosts.total_gold > 0 && (
-            <Mats>{Math.round(totalUpgradeCosts.total_gold)} G</Mats>
-          )}
-        </MatsWrapper>
-        <ArrowIcon>d</ArrowIcon>
-        {/* </LevelTotal> */}
+        </TotalContent>
       </Total>
 
       <AnimatePresence>
-        {expand && (
-          <LevelTotalContainer {...animProps} onClick={() => console.log(data)}>
-            {upgradeCosts.map((upgradeLvl, i) => (
-              <LevelTotal key={`${data.id}-${i}`}>
-                <LvlWrapper>
-                  <LvlBox>{honing_start + i}</LvlBox>
-                  <Arrow>
-                    <MdArrowRightAlt />
-                  </Arrow>
-                  <LvlBox>{honing_start + i + 1}</LvlBox>
-                </LvlWrapper>
-
+        {showMore && (
+          <LevelTotalContainer
+            {...drawerAnimProps}
+            onClick={() => console.log(data)}
+          >
+            {upgrades.map((upgradeLvl, i) => (
+              <LevelTotal key={`${data.id}-${i}`} {...lvlAnimProps} custom={i}>
+                <SubHeader>
+                  <InfoLabel tooltipText="honing level">
+                    {honing_start + i}
+                    <Arrow>-&gt;</Arrow>
+                    {honing_start + i + 1}
+                  </InfoLabel>
+                  <InfoLabel tooltipText="success rate">
+                    {upgradeLvl.honingLvl.initial_success_rate * 100}%
+                  </InfoLabel>
+                  <InfoLabel tooltipText="expected value">
+                    {prettyNumber(upgradeLvl.expectedValue)}
+                  </InfoLabel>
+                </SubHeader>
                 <MatsWrapper>
-                  {upgradeLvl.total_destruction_stones > 0 && (
-                    <Mats>
-                      {Math.round(upgradeLvl.total_destruction_stones)} DS
-                    </Mats>
-                  )}
-                  {upgradeLvl.total_guardian_stones > 0 && (
-                    <Mats>
-                      {Math.round(upgradeLvl.total_guardian_stones)} GS
-                    </Mats>
-                  )}
-                  {upgradeLvl.total_leapstones > 0 && (
-                    <Mats>{Math.round(upgradeLvl.total_leapstones)} LS</Mats>
-                  )}
-                  {upgradeLvl.total_fusion > 0 && (
-                    <Mats>{Math.round(upgradeLvl.total_fusion)} F</Mats>
-                  )}
-                  {upgradeLvl.total_shards > 0 && (
-                    <Mats>{Math.round(upgradeLvl.total_shards)} Sh</Mats>
-                  )}
-                  {upgradeLvl.total_silver > 0 && (
-                    <Mats>{Math.round(upgradeLvl.total_silver)} S</Mats>
-                  )}
-                  {upgradeLvl.total_gold > 0 && (
-                    <Mats>{Math.round(upgradeLvl.total_gold)} G</Mats>
-                  )}
+                  {Object.entries(upgradeLvl.costs).map(([mat, cost]) => (
+                    <Mats
+                      key={mat}
+                      tier={tier}
+                      material={mat as MaterialTypes}
+                      cost={cost}
+                    />
+                  ))}
                 </MatsWrapper>
               </LevelTotal>
             ))}

@@ -74,7 +74,7 @@ export const darkTheme: Theme = {
       light: "#272727",
       // main: "#1a1a1a",
       main: "#222222",
-      dark: "#1d1d1d",
+      dark: "#1a1a1a",
       darker: "#000000",
     }),
     surface: ccs({

@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Dispatch, SetStateAction, useState } from "react";
 
 import { MdArrowDropDown } from "react-icons/md";
-import { SetTier, SetType } from "../../utils/honing-calculations";
 
 const Container = styled.div`
   z-index: 2;
