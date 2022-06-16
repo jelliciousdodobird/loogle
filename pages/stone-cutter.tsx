@@ -173,9 +173,23 @@ type stone = {
 type x = keyof stone;
 type t = { [k in x]: trial };
 
+type recordNode = {
+  engraving: x;
+  position: number;
+  value: boolean | null;
+};
+type record = {
+  current: number;
+  recordNodes: recordNode[];
+};
+
 const StoneCutter = () => {
   const [nodes, setNodes] = useState<OptionType>(nodeTypes[0]);
   const [probability, setProbability] = useState<number>(INITIAL_PROBABILITY);
+  const [history, setHistory] = useState<record>({
+    current: 0,
+    recordNodes: [],
+  });
 
   const [engravings, setEngravings] = useState<stone>({
     ENGRAVING_ONE: {
@@ -262,14 +276,6 @@ const StoneCutter = () => {
           StoneCutter
         </div>
         <Cutter>
-          <CustomButton
-            onClick={() => {
-              console.log("hewo");
-            }}
-          >
-            Hewo
-          </CustomButton>
-
           <GeneralOptions>
             <CustomButton title="Undo">
               <CustomSvg>
