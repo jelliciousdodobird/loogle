@@ -382,7 +382,7 @@ const HoningPieceResults = ({ data }: Props) => {
                 <SubHeader>
                   <InfoLabel
                     tooltipTitle="honing level"
-                    tooltipDescription={`Honing from levels ${
+                    tooltipDescription={`Honing from level ${
                       honing_start + i
                     } to ${honing_start + i + 1}.`}
                   >
@@ -390,10 +390,20 @@ const HoningPieceResults = ({ data }: Props) => {
                     <Arrow>-&gt;</Arrow>
                     {honing_start + i + 1}
                   </InfoLabel>
-                  <InfoLabel tooltipTitle="success rate">
+                  <InfoLabel
+                    tooltipTitle="success rate"
+                    tooltipDescription="Base honing success rate (does not include rate up materials)."
+                  >
                     {upgradeLvl.honingLvl.initial_success_rate * 100}%
                   </InfoLabel>
-                  <InfoLabel tooltipTitle="expected value">
+                  <InfoLabel
+                    tooltipTitle="expected value"
+                    tooltipDescription={`Average number of trials estimated to succeed honing. Less than ${prettyNumber(
+                      upgradeLvl.expectedValue
+                    )} tap(s) is considered lucky. More than ${prettyNumber(
+                      upgradeLvl.expectedValue
+                    )} tap(s) is unlucky.`}
+                  >
                     {prettyNumber(upgradeLvl.expectedValue)}
                   </InfoLabel>
                 </SubHeader>

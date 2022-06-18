@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { AnimatePresence, motion } from "framer-motion";
 import { ReactNode, useState } from "react";
 import DynamicPortal from "./DynamicPortal";
 
@@ -60,20 +61,22 @@ const CustomFullContainer = styled.div`
   min-height: 100%;
 `;
 
-const CustomBackdrop = styled.div`
+const CustomBackdrop = styled(motion.div)`
   z-index: -1;
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(1px);
+  backdrop-filter: blur(2px);
   background-color: rgba(0, 0, 0, 0.1);
 `;
 
-const Info = styled.div`
+const Info = styled(motion.div)`
+  width: 20rem;
+  backdrop-filter: blur(5px);
   background-color: ${({ theme }) => theme.colors.background.light};
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(131, 131, 131, 0.281);
 
   /* border-top-left-radius: 13px;
   border-bottom-right-radius: 13px; */
@@ -84,18 +87,21 @@ const Info = styled.div`
   align-items: center;
   gap: 0.25rem;
   overflow: hidden;
+  margin: 1rem;
 `;
 
-const InfoHeader = styled.span`
+const InfoHeader = styled.h4`
   width: 100%;
   background-color: ${({ theme }) => theme.colors.background.light};
+  background-color: rgba(131, 131, 131, 0.281);
 
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
+  justify-content: space-between;
   align-items: center;
 
   gap: 0.5rem;
-  padding: 0.5rem;
+  padding: 0.6rem;
 `;
 
 const InfoTitle = styled.span`
@@ -103,14 +109,16 @@ const InfoTitle = styled.span`
   font-size: 1rem;
   font-weight: 700;
 `;
-const InfoDescription = styled.span`
+
+const InfoDescription = styled.p`
   width: 100%;
 
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
 
-  padding: 0.5rem;
+  padding: 0.7rem;
+  padding-bottom: 1.2rem;
 
   font-size: 0.8rem;
   font-weight: 600;
@@ -132,39 +140,85 @@ const InfoLabel = ({
   tooltipComponent,
 }: Props) => {
   const [showTooltip, setShowTooltip] = useState(false);
+  const [expand, setExpand] = useState(false);
 
   const show =
     (tooltipTitle !== undefined || tooltipComponent !== undefined) &&
     showTooltip;
 
+  const backdropAnimProps = {
+    variants: {
+      initial: {
+        opacity: 0,
+      },
+      expand: {
+        opacity: 1,
+      },
+      remove: {
+        opacity: 0,
+      },
+    },
+    initial: "initial",
+    animate: showTooltip ? "expand" : "initial",
+    exit: "remove",
+    // transition: { duration: 0.5 },
+  };
+
+  const infoAnimProps = {
+    variants: {
+      initial: {
+        scale: 0,
+        opacity: 0,
+      },
+      expand: {
+        scale: 1,
+        opacity: 1,
+      },
+      remove: {
+        scale: 0,
+        opacity: 0,
+      },
+    },
+    initial: "initial",
+    animate: showTooltip ? "expand" : "initial",
+    exit: "remove",
+    // transition: { duration: 0.5 },
+  };
+
   return (
     <Container
       tabIndex={0}
-      onClick={() => setShowTooltip((v) => !v)}
+      onClick={() => {
+        setShowTooltip((v) => !v);
+      }}
       // onBlur={() => setShowTooltip(false)}
     >
-      {show && (
-        // <DynamicPortal portalId="app" backdrop>
-        <DynamicPortal portalId="app">
-          <CustomFullContainer>
-            <CustomBackdrop />
-            <TooltipContainer>
-              <Info>
-                <InfoHeader>
-                  <Container>{children}</Container>
-                  {tooltipTitle !== undefined ? (
-                    <InfoTitle>{tooltipTitle}</InfoTitle>
+      {/* {show && (
+        // <DynamicPortal portalId="app" backdrop> */}
+      <DynamicPortal portalId="app">
+        <AnimatePresence>
+          {show && (
+            <CustomFullContainer>
+              <CustomBackdrop {...backdropAnimProps} />
+              <TooltipContainer>
+                <Info {...infoAnimProps}>
+                  <InfoHeader>
+                    {tooltipTitle !== undefined ? (
+                      <InfoTitle>{tooltipTitle}</InfoTitle>
+                    ) : null}
+                    <Container>{children}</Container>
+                  </InfoHeader>
+                  {tooltipDescription !== undefined ? (
+                    <InfoDescription>{tooltipDescription}</InfoDescription>
                   ) : null}
-                </InfoHeader>
-                {tooltipDescription !== undefined ? (
-                  <InfoDescription>{tooltipDescription}</InfoDescription>
-                ) : null}
-                {tooltipComponent !== undefined ? tooltipComponent : null}
-              </Info>
-            </TooltipContainer>
-          </CustomFullContainer>
-        </DynamicPortal>
-      )}
+                  {tooltipComponent !== undefined ? tooltipComponent : null}
+                </Info>
+              </TooltipContainer>
+            </CustomFullContainer>
+          )}
+        </AnimatePresence>
+      </DynamicPortal>
+      {/* )} */}
       {children}
     </Container>
   );
