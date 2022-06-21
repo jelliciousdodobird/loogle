@@ -11,7 +11,6 @@ const Container = styled.div`
   font-size: 0.8rem;
   font-weight: 600;
   font-style: italic;
-  /* color: #222; */
 
   padding: 0.35rem 0.75rem;
   background-color: ${({ theme }) => theme.colors.background.main};
@@ -48,11 +47,9 @@ const TooltipContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-
-  border: 1px solid red;
 `;
 
-const CustomFullContainer = styled.div`
+const CustomFullContainer = styled(motion.div)`
   z-index: 100;
   position: absolute;
   width: 100%;
@@ -61,6 +58,8 @@ const CustomFullContainer = styled.div`
   min-height: 100%;
 `;
 
+// Unable to apply motion-framer animations due to a bug with backdrop-filter
+// in the framer library
 const CustomBackdrop = styled(motion.div)`
   z-index: -1;
   position: absolute;
@@ -69,7 +68,7 @@ const CustomBackdrop = styled(motion.div)`
   width: 100%;
   height: 100%;
   backdrop-filter: blur(2px);
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.2);
 `;
 
 const Info = styled(motion.div)`
@@ -96,7 +95,6 @@ const InfoHeader = styled.h4`
   background-color: rgba(131, 131, 131, 0.281);
 
   display: flex;
-  /* justify-content: center; */
   justify-content: space-between;
   align-items: center;
 
@@ -114,7 +112,6 @@ const InfoDescription = styled.p`
   width: 100%;
 
   display: flex;
-  /* justify-content: center; */
   align-items: center;
 
   padding: 0.7rem;
@@ -123,8 +120,6 @@ const InfoDescription = styled.p`
   font-size: 0.8rem;
   font-weight: 600;
 `;
-// decide on whether or not you want the component passed in to be forced into
-// an Info style or if we will allow them to just put it in with their own styles
 
 type Props = {
   children: ReactNode;
@@ -199,7 +194,8 @@ const InfoLabel = ({
         <AnimatePresence>
           {show && (
             <CustomFullContainer>
-              <CustomBackdrop {...backdropAnimProps} />
+              {/* <CustomBackdrop {...backdropAnimProps} /> */}
+              <CustomBackdrop />
               <TooltipContainer>
                 <Info {...infoAnimProps}>
                   <InfoHeader>
